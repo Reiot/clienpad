@@ -1,0 +1,18 @@
+application: clieeen
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /favicon\.ico
+  mime_type: image/png
+  static_files: favicon.ico
+  upload: favicon.ico
+
+- url: /ppan\.gif
+  mime_type: image/gif
+  static_files: ppan.gif
+  upload: ppan.gif
+  
+- url: .*
+  script: main.py

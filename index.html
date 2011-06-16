@@ -1,0 +1,44 @@
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+<script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
+
+<style type="text/css">
+	.ui-li-has-thumb .ui-btn-inner a.ui-link-inherit, .ui-li-static.ui-li-has-thumb {
+		min-height: 0;
+		padding-left: 85px;
+	}
+	img.ppan {
+		display: block;
+		margin: 12px 11px 11px 11px;
+	}
+</style>
+<!-- Start of first page -->
+<div data-role="page" id="foo">
+    
+    <div data-role="header" data-theme="b">
+        <h1>Clieen</h1>
+    </div><!-- /header -->
+    
+    <div data-role="content" data-theme="b">    
+        <ul data-role="listview">
+			{% for post in posts %}
+			<li>
+				{{post.author}}
+				<a href="#">
+					{{post.title}}
+					<span class="ui-li-aside ui-li-desc">{{post.publish_time}}</span>					
+				</a>
+				<span class="ui-li-count">{{post.read}}</span>
+			</li>
+			{% endfor %}        	
+        </ul>
+    </div><!-- /content -->
+    
+    <div data-role="footer" class="ui-bar" data-theme="b">
+        <a href="#" data-role="button" data-icon="refresh">More</a>
+    </div><!-- /header -->
+</div><!-- /page -->
+
+
+
+
