@@ -16,7 +16,7 @@
 <div data-role="page" id="foo">
     
     <div data-role="header" data-theme="b">
-        <h1>Clieen</h1>
+        <h1>jClien</h1>
     </div><!-- /header -->
     
     <div data-role="content" data-theme="b">    
@@ -24,7 +24,7 @@
 			{% for post in posts %}
 			<li>
 				{{post.author}}
-				<a href="#">
+				<a href="/{{board}}/{{post.id}}/">
 					{{post.title}}
 					<span class="ui-li-aside ui-li-desc">{{post.publish_time}}</span>					
 				</a>

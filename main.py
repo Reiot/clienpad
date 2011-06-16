@@ -23,6 +23,22 @@ import os
 from BeautifulSoup import BeautifulSoup
 import logging
 
+# TEST Script
+#
+#
+# >>> from BeautifulSoup import BeautifulSoup
+# >>> import urllib
+# >>> soup = BeautifulSoup(urllib.urlopen(url).read())
+
+def author_image(tag):
+    if tag.img:
+        image_src = tag.img['src']
+        image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
+        author = '<img src="%s" class="ppan"/>'% image_src
+    else:
+        author = '<img src="ppan.gif" class="ppan default"/>'
+    
+
 class MainHandler(webapp.RequestHandler):
     """article list"""
     def get(self):
@@ -72,66 +88,55 @@ class MainHandler(webapp.RequestHandler):
                 ))
                 
             path = os.path.join(os.path.dirname(__file__), 'index.html')
-            self.response.out.write(template.render(path, {'posts': posts}))
+            self.response.out.write(template.render(path, {
+                'board': 'park',
+                'posts': posts,
+            }))
         else:
             logging.info("failed")
                 
-class ArticleHandler(webapp.RequestHandler):
+class PostHandler(webapp.RequestHandler):
     """read article & comments"""
-    def get(self, board, id):
-
-        url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=park"
+    def get(self, bo_table, wr_id):
+        url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s&wr_id=%s"%(bo_table, wr_id)
         logging.info("fetching...%s"% url)
         result = urlfetch.fetch(url)
         logging.info("status: %d"% result.status_code)
         if result.status_code == 200:
             soup = BeautifulSoup(result.content)
-            posts = []
-            # skip table header and notice
-            for tr in soup.find("div", {"class": "board_main"}).findAll("tr")[2:]:
-                td = tr.findAll("td")
-                if len(td)<4:
-                    logging.info("invalid format: %s"%td)
-                    continue
-                    
-                #logging.info(td)
-                #logging.info("#td=%d"% len(td)) #type(td))
-                id = td[0].string
-                logging.info("id=%s"%id)
-                title = td[1].a.string
-                logging.info("title=%s"%title)
-                
-                author_tag = td[2]
-                if author_tag.img:
-                    image_src = author_tag.img['src']
-                    image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
-                    author = '<img src="%s" class="ppan"/>'% image_src
-                else:
-                    author = author_tag.span.string
-                logging.info("author=%s"%author)
-                publish_time = td[3].span['title']
-                logging.info("publish_time: %s"%publish_time)
-                read = int(td[4].string)
-                logging.info("read: %d"% read)
-                # read = publish_time.nextSibling
-                # for td in tr.findAll("td"):
-                #     logging.info(td)
-                posts.append(dict(
-                    id = id,
-                    title = title,
-                    author = author,
-                    publish_time = publish_time,
-                    read = read,
+            
+            title = soup.find('div', {'class':'view_title'})
+            logging.info('title:%s'% title)
+            content = soup.find('div', {'class':'view_content'})
+            logging.info('content:%s'% content)
+            comments = []
+            for comment in soup.findAll('div', {'class':'reply_head'}):
+                comment_author = author_img(comment.ul.li)
+                logging.info('comment by: %s'%comment_author)
+                comment_date = None
+                comment_content = comment.findNext('div')
+                logging.info('comment: %s'%comment_content)
+                commands.append(dict(
+                    author = comment_author,
+                    content = comment_content,
                 ))
-                
-            path = os.path.join(os.path.dirname(__file__), 'index.html')
-            self.response.out.write(template.render(path, {'posts': posts}))
+
+            post = dict(
+                title = title,
+                content = content,
+                comments = comments,
+            )
+
+            path = os.path.join(os.path.dirname(__file__), 'post.html')
+            self.response.out.write(template.render(path, {'post': post}))
         else:
             logging.info("failed")
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)],
-                                         debug=True)
+    application = webapp.WSGIApplication([
+        ('/', MainHandler),
+        (r'/(.*)/(.*)', PostHandler),
+        ], debug=True)
     util.run_wsgi_app(application)
 
 
