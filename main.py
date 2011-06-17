@@ -36,8 +36,11 @@ def author_image(tag):
         image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
         author = '<img src="%s" class="ppan"/>'% image_src
     else:
-        author = '<img src="ppan.gif" class="ppan default"/>'
-    
+        author = '<img src="ppan.gif" class="ppan default" title="%s" alt="%s"/>'% (
+            tag.span.string,
+            tag.span.string,
+        )
+    return author
 
 class BoardHandler(webapp.RequestHandler):
     """article list"""
@@ -107,7 +110,7 @@ class PostHandler(webapp.RequestHandler):
             
             title_div = soup.find('div', {'class':'view_title'})
             title = title_div.div.h4.span.string
-            logging.info('title:%s'% title)
+            #logging.info('title:%s'% title)
             
             content_div = soup.find('div', {'class':'resContents'})
             
@@ -133,14 +136,15 @@ class PostHandler(webapp.RequestHandler):
                 content.append(unicode(c))
 
             content = u''.join(content)
-            logging.info('content:%s'% content)
+            #logging.info('content:%s'% content)
             comments = []
             for comment in soup.findAll('div', {'class':'reply_head'}):
+                #logging.info('comment: %s'% comment.ul.li)
                 comment_author = author_image(comment.ul.li)
-                logging.info('comment by: %s'%comment_author)
+                logging.info('author: %s'%comment_author)
                 comment_date = None
                 comment_content = comment.findNext('div')
-                logging.info('comment: %s'%comment_content)
+                logging.info('content: %s'%comment_content)
                 comments.append(dict(
                     author = comment_author,
                     content = comment_content,

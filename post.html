@@ -10,19 +10,29 @@
 
 <div data-role="page">
 
-	<div data-role="header"  data-theme="b">
+	<div data-role="header"  data-theme="d">
 		<h1>{{post.title}}</h1>
 	</div><!-- /header -->
 
-	<div data-role="content" data-theme="b">	
+	<div data-role="content" data-theme="d">	
 		{{post.author}}		
 		{{post.content}}	
 		{% if post.signature %}	
 			<em>{{post.signature}}</em>
 		{% endif %}
+		{% if post.comments %}
+		<ul data-role="listview" data-theme="d" data-inset="true">
+			{% for comment in post.comments %}
+			<li>
+				{{comment.author}}
+				{{comment.content}}
+			</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
 	</div><!-- /content -->
 
-	<div data-role="footer" data-theme="b">
+	<div data-role="footer" data-theme="d">
 		<h4>Page Footer</h4>
 	</div><!-- /footer -->
 </div>
