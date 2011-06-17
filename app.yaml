@@ -3,6 +3,14 @@ version: 1
 runtime: python
 api_version: 1
 
+default_expiration: "30d"
+
+builtins:
+- datastore_admin: on
+- appstats: on
+- remote_api: on
+- admin_redirect: on
+
 handlers:
 - url: /favicon\.ico
   mime_type: image/png
