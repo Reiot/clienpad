@@ -3,14 +3,13 @@
 	<head> 
 	<title>{{post.title}} - jClien</title> 
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
-	<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.js"></script>
-	<script type="text/javascript" src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
-</head> 
+	<script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script></head> 
 <body> 
 
-<div data-role="page">
+<div data-role="page" data-theme="d">
 
-	<div data-role="header" data-position="fixed" data-theme="d">
+	<div data-role="header" data-backbtn="false" data-position="fixed">
 		<a href="/{{board.id}}" data-icon="back">{{board.title}}</a>
 		<h1>{{post.title}}</h1>
 		<!--
@@ -19,14 +18,14 @@
 		-->
 	</div><!-- /header -->
 
-	<div data-role="content" data-theme="d">	
+	<div data-role="content">	
 		{{post.author}}		
 		{{post.content}}	
 		{% if post.signature %}	
 			<em>{{post.signature}}</em>
 		{% endif %}
 		{% if post.comments %}
-		<ul data-role="listview" data-theme="d" data-inset="true">
+		<ul data-role="listview" data-inset="true">
 			{% for comment in post.comments %}
 			<li>
 				{{comment.author}}
@@ -44,7 +43,7 @@
 		-->
 	</div><!-- /content -->
 
-	<div data-role="footer" class="ui-bar" data-theme="d">
+	<div data-role="footer" class="ui-bar" data-position="fixed">
 		<div data-role="navbar">
 			<ul>
 				{% if prev %}

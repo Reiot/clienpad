@@ -1,7 +1,12 @@
-<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
-<script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
-<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.js"></script>
-
+<!DOCTYPE html> 
+<html> 
+	<head> 
+	<title>{{post.title}} - jClien</title> 
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+	<script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script></head> 
+<body>
+	
 <style type="text/css">
 	.ui-li-has-thumb .ui-btn-inner a.ui-link-inherit, .ui-li-static.ui-li-has-thumb {
 		min-height: 0;
@@ -28,16 +33,15 @@
 		color: black;
 	}
 </style>
-<!-- Start of first page -->
-<div data-role="page" id="foo">
+
+<div data-role="page" data-theme="d">
     
-    <div data-role="header" data-theme="d">
+    <div data-role="header" data-position="fixed">
         <h1>jClien</h1>
         <a href="#" id="refresh" data-role="button" data-icon="refresh" data-board="{{board}}">처음으로</a>
-
     </div><!-- /header -->
     
-    <div data-role="content" data-theme="d">    
+    <div data-role="content">    
         <ul id="posts" data-role="listview">
 			{% for post in posts %}
 			<li>
@@ -132,3 +136,5 @@ $(function(){
 });
 </script>
 
+</body>
+</html>
