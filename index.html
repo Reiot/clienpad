@@ -33,6 +33,8 @@
     
     <div data-role="header" data-theme="d">
         <h1>jClien</h1>
+        <a href="#" id="refresh" data-role="button" data-icon="refresh" data-board="{{board}}">처음으로</a>
+
     </div><!-- /header -->
     
     <div data-role="content" data-theme="d">    
@@ -51,14 +53,50 @@
 			{% endfor %}        	
         </ul>
 	    <div style="margin-top: 2em;">
-	        <a href="#" id="more" data-role="button" data-icon="refresh" data-board="{{board}}" data-next-page="{{next_page}}">More</a>
+	        <a href="#" id="more" data-role="button" data-board="{{board}}" data-next-page="{{next_page}}">More</a>
 	    </div><!-- /header -->
     </div><!-- /content -->
     
 </div><!-- /page -->
 
 <script type="text/javascript">
+function add_post(board, data){
+	var i;
+	var $posts = $('#posts');
+	for( i = 0 ; i < data.length ; i ++ ){
+		var post = data[i];
+		var li = '<li>'
+		+ post.author
+		+ '<a href="/' + board + '/' + post.id + '">' 
+		+ post.title 
+		+ '<span class="ui-li-aside ui-li-desc">' + post.publish_time_short + '</span>'
+		+ '</a>';
+		if(post.comments>0){
+			li += '<span class="ui-li-count">' + post.comments + '</span>';
+		}					
+		li += '</li>';					
+		
+		$posts.append(li);
+	}
+	$posts.listview('refresh');
+	
+}
 $(function(){
+	
+	$('#refresh').click(function(){
+		var $button = $(this),
+			board = $button.data('board');
+			
+		console.log('board', board);
+		
+		$.getJSON("/"+board, { format: "json" })
+			.success(function(response){
+				console.log('response',response);
+				$('#posts').empty();
+				add_post(board, response.posts);
+			});
+	});
+	
 	$('#more').click(function(){
 		var $button = $(this),
 			board = $button.data('board'),
