@@ -36,7 +36,7 @@
     </div><!-- /header -->
     
     <div data-role="content" data-theme="d">    
-        <ul data-role="listview">
+        <ul id="posts" data-role="listview">
 			{% for post in posts %}
 			<li>
 				{{post.author}}
@@ -50,19 +50,47 @@
 			</li>
 			{% endfor %}        	
         </ul>
+	    <div style="margin-top: 2em;">
+	        <a href="#" id="more" data-role="button" data-icon="refresh" data-board="{{board}}" data-next-page="{{next_page}}">More</a>
+	    </div><!-- /header -->
     </div><!-- /content -->
     
-    <div data-role="footer" class="ui-bar" data-theme="d">
-        <a href="#" data-role="button" data-icon="refresh">More</a>
-    </div><!-- /header -->
 </div><!-- /page -->
 
-<!-- <script type="text/javascript">
+<script type="text/javascript">
 $(function(){
-	$('img.ppan.default').each(function(img){
-		console.log(img.attr('alt'));
+	$('#more').click(function(){
+		var $button = $(this),
+			board = $button.data('board'),
+			nextPage = $button.data('next-page');
+			
+		console.log('board', board, 'nextPage', nextPage);
+		
+		$.getJSON("/"+board+"/page"+nextPage, { format: "json" })
+			.success(function(response){
+				console.log('response',response);
+				
+				$button.data('next-page', response.next_page);
+				var i;
+				var $posts = $('#posts');
+				for( i = 0 ; i < response.posts.length ; i ++ ){
+					var post = response.posts[i];
+					var li = '<li>'
+					+ post.author
+					+ '<a href="/' + board + '/' + post.id + '">' 
+					+ post.title 
+					+ '<span class="ui-li-aside ui-li-desc">' + post.publish_time_short + '</span>'
+					+ '</a>';
+					if(post.comments>0){
+						li += '<span class="ui-li-count">' + post.comments + '</span>';
+					}					
+					li += '</li>';					
+					
+					$posts.append(li);
+				}
+				$posts.listview('refresh');
+			});
 	});
 });
 </script>
- -->
 

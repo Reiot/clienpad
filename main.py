@@ -15,16 +15,18 @@
 # limitations under the License.
 #
 import os
+
+# with 1.2, HTML tags are escaped!
 # os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 # 
-# from google.appengine.dist import use_library
-# use_library('django', '1.2')
+#from google.appengine.dist import use_library
+#use_library('django', '1.2')
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import template
-
+from django.utils import simplejson 
 
 from BeautifulSoup import BeautifulSoup
 import logging
@@ -54,13 +56,18 @@ def author_image(tag):
 
 class BoardHandler(webapp.RequestHandler):
     """article list"""
-    def get(self, board='park'):
-
+    def get(self, board='park', page="1"):
+        
+        page = int(page)
         url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s"% board
+        if page > 1:
+            url += "&page=%d"%page
+            
         logging.info("fetching...%s"% url)
         result = urlfetch.fetch(url)
-        logging.info("status: %d"% result.status_code)
-        if result.status_code == 200:
+        if result.status_code != 200:
+            logging.warn("urlfetch failed: %d"% result.status_code)            
+        else:
             soup = BeautifulSoup(result.content)
             posts = []
             # skip table header and notice
@@ -110,14 +117,19 @@ class BoardHandler(webapp.RequestHandler):
                     read = read,
                     comments = comments,
                 ))
-                
-            path = os.path.join(os.path.dirname(__file__), 'index.html')
-            self.response.out.write(template.render(path, {
-                'board': board,
-                'posts': posts,
-            }))
-        else:
-            logging.info("failed")
+            
+            res = dict(
+                board = board,
+                next_page = page+1,
+                posts = posts,
+            )
+            if self.request.get('format')=='json':
+                self.response.headers["Content-Type"] = "application/json"                
+                self.response.out.write(simplejson.dumps(res))                
+            else:
+                path = os.path.join(os.path.dirname(__file__), 'index.html')
+                self.response.out.write(template.render(path, res))
+            
                 
 class PostHandler(webapp.RequestHandler):
     """read article & comments"""
@@ -187,6 +199,7 @@ def main():
     application = webapp.WSGIApplication([
         ('/', BoardHandler),
         (r'/([^/]*)', BoardHandler),
+        (r'/([^/]*)/page(\d+)', BoardHandler),
         (r'/([^/]*)/(\d*)', PostHandler),
         ], debug=True)
     util.run_wsgi_app(application)
