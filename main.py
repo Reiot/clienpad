@@ -209,8 +209,13 @@ class PostHandler(webapp.RequestHandler):
             view_board = soup.find('table', {'class':'view_board'})
             #logging.info('view_board: %s'% view_board)
             td = view_board.findAll('td', {'class':'post_subject'})
-            prev = get_post_info(td[0])
-            next = get_post_info(td[1])
+            if len(td)==1: # lastest post
+                prev = None
+                next = get_post_info(td[0])
+            else:
+                prev = get_post_info(td[0])
+                next = get_post_info(td[1])
+                
             #logging.info("prev=%s next=%s"%( prev, next))
 
             post = dict(

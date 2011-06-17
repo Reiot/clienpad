@@ -47,7 +47,9 @@
 	<div data-role="footer" class="ui-bar" data-theme="d">
 		<div data-role="navbar">
 			<ul>
+				{% if prev %}
 				<li><a href="/{{board}}/{{prev.id}}" data-icon="arrow-l">이전 글<span>{{prev.title}}</span></a></li>
+				{% endif %}
 				<li><a href="/{{board}}/{{next.id}}" data-icon="arrow-r">다음 글<span>{{next.title}}</span></a></li>
 			</ul>
 		</div><!-- /navbar -->
