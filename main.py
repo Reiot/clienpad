@@ -151,11 +151,19 @@ def get_post_info(td):
         title = title,
         comments = comments,
     )
+    
+BOARDS = dict(
+    park = dict(
+        id = 'park',
+        title = u'모두의 공원',
+    )
+)
                 
 class PostHandler(webapp.RequestHandler):
     """read article & comments"""
-    def get(self, bo_table, wr_id):
-        url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s&wr_id=%s"%(bo_table, wr_id)
+    def get(self, board_id, post_id):
+        board = BOARDS[board_id]
+        url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s&wr_id=%s"%(board_id, post_id)
         logging.info("fetching...%s"% url)
         result = urlfetch.fetch(url)
         #logging.info("status: %d"% result.status_code)
@@ -227,7 +235,7 @@ class PostHandler(webapp.RequestHandler):
 
             path = os.path.join(os.path.dirname(__file__), 'post.html')
             self.response.out.write(template.render(path, {
-                'board': bo_table,
+                'board': board,
                 'post': post,
                 'prev': prev,
                 'next': next,

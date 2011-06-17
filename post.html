@@ -11,7 +11,7 @@
 <div data-role="page">
 
 	<div data-role="header" data-position="fixed" data-theme="d">
-		<a href="#" data-rel="back" data-icon="back">Back</a>
+		<a href="/{{board.id}}" data-icon="back">{{board.title}}</a>
 		<h1>{{post.title}}</h1>
 		<!--
 		<a href="#" data-icon="arrow-l">이전</a>
@@ -48,9 +48,9 @@
 		<div data-role="navbar">
 			<ul>
 				{% if prev %}
-				<li><a href="/{{board}}/{{prev.id}}" data-icon="arrow-l">이전 글<span>{{prev.title}}</span></a></li>
+				<li><a href="/{{board.id}}/{{prev.id}}" data-icon="arrow-l">이전 글<span>{{prev.title}}</span></a></li>
 				{% endif %}
-				<li><a href="/{{board}}/{{next.id}}" data-icon="arrow-r">다음 글<span>{{next.title}}</span></a></li>
+				<li><a href="/{{board.id}}/{{next.id}}" data-icon="arrow-r">다음 글<span>{{next.title}}</span></a></li>
 			</ul>
 		</div><!-- /navbar -->
 	</div><!-- /footer -->

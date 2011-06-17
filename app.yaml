@@ -1,4 +1,4 @@
-application: j-clien
+application: clienpad
 version: 1
 runtime: python
 api_version: 1
