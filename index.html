@@ -9,7 +9,23 @@
 	}
 	img.ppan {
 		display: block;
-		margin: 12px 11px 11px 11px;
+		margin: 11px 11px 11px 11px;
+	}
+	img.ppan.default {
+		display: none;
+		opacity: 0.7;
+	}
+	span.author {
+		display: block;
+		position: absolute;
+		left: 4px;
+		top: 11px;
+		width: 70px;
+		font-size: 10px;
+		text-align: center;
+		background-color: #ccc;
+		padding: 2px;
+		color: black;
 	}
 </style>
 <!-- Start of first page -->
@@ -39,6 +55,12 @@
     </div><!-- /header -->
 </div><!-- /page -->
 
-
-
+<!-- <script type="text/javascript">
+$(function(){
+	$('img.ppan.default').each(function(img){
+		console.log(img.attr('alt'));
+	});
+});
+</script>
+ -->
 

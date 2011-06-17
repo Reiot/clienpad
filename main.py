@@ -42,10 +42,14 @@ def author_image(tag):
         image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
         author = '<img src="%s" class="ppan"/>'% image_src
     else:
-        author = '<img src="ppan.gif" class="ppan default" title="%s" alt="%s"/>'% (
+        author = '<img src="ppan.gif" class="ppan default" title="%s" alt="%s"/><span class="author">%s</span>'% (
+            tag.span.string,
             tag.span.string,
             tag.span.string,
         )
+        # author = '<span class="author ul-li-thumb">%s</span>'% (
+        #     tag.span.string,
+        # )
     return author
 
 class BoardHandler(webapp.RequestHandler):
