@@ -111,12 +111,12 @@ class PostHandler(webapp.RequestHandler):
             logging.info('content:%s'% content)
             comments = []
             for comment in soup.findAll('div', {'class':'reply_head'}):
-                comment_author = author_img(comment.ul.li)
+                comment_author = author_image(comment.ul.li)
                 logging.info('comment by: %s'%comment_author)
                 comment_date = None
                 comment_content = comment.findNext('div')
                 logging.info('comment: %s'%comment_content)
-                commands.append(dict(
+                comments.append(dict(
                     author = comment_author,
                     content = comment_content,
                 ))
