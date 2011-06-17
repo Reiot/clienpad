@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 #
 # Copyright 2007 Google Inc.
@@ -15,6 +16,7 @@
 # limitations under the License.
 #
 import os
+import re
 
 # with 1.2, HTML tags are escaped!
 # os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
@@ -129,7 +131,26 @@ class BoardHandler(webapp.RequestHandler):
             else:
                 path = os.path.join(os.path.dirname(__file__), 'index.html')
                 self.response.out.write(template.render(path, res))
-            
+         
+def get_post_info(td):
+    #<td class="post_subject"><a href="./board.php?bo_table=park&amp;wr_id=6535728&amp;page=">저도 여친에게 알콩달콩 살고 싶다고 말한 적이...</a><span>[4]</span></td>
+    
+    href = td.a['href']
+    post_id =  re.search('wr_id=(\d+)',href).group(1)
+    #logging.info('id=%s'% post_id)
+
+    title = td.a.string
+    #logging.info('title=%s'% title)
+
+    comments = td.span.string
+    comments = comments.replace('[','').replace(']','')
+    #logging.info('comments=%s'% comments)
+
+    return dict(
+        id = post_id,
+        title = title,
+        comments = comments,
+    )
                 
 class PostHandler(webapp.RequestHandler):
     """read article & comments"""
@@ -137,8 +158,10 @@ class PostHandler(webapp.RequestHandler):
         url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s&wr_id=%s"%(bo_table, wr_id)
         logging.info("fetching...%s"% url)
         result = urlfetch.fetch(url)
-        logging.info("status: %d"% result.status_code)
-        if result.status_code == 200:
+        #logging.info("status: %d"% result.status_code)
+        if result.status_code != 200:
+            logging.warn("urlfetch failed: %d"% result.status_code)            
+        else:
             soup = BeautifulSoup(result.content)
             
             title_div = soup.find('div', {'class':'view_title'})
@@ -182,6 +205,13 @@ class PostHandler(webapp.RequestHandler):
                     author = comment_author,
                     content = comment_content,
                 ))
+                
+            view_board = soup.find('table', {'class':'view_board'})
+            #logging.info('view_board: %s'% view_board)
+            td = view_board.findAll('td', {'class':'post_subject'})
+            prev = get_post_info(td[0])
+            next = get_post_info(td[1])
+            #logging.info("prev=%s next=%s"%( prev, next))
 
             post = dict(
                 title = title,
@@ -191,9 +221,12 @@ class PostHandler(webapp.RequestHandler):
             )
 
             path = os.path.join(os.path.dirname(__file__), 'post.html')
-            self.response.out.write(template.render(path, {'post': post}))
-        else:
-            logging.info("failed")
+            self.response.out.write(template.render(path, {
+                'board': bo_table,
+                'post': post,
+                'prev': prev,
+                'next': next,
+            }))
 
 def main():
     application = webapp.WSGIApplication([

@@ -36,17 +36,19 @@
 		</ul>
 		{% endif %}
 		
+		<!--
 		<div data-role="controlgroup" data-type="horizontal">
 			<a href="#" data-role="button" data-icon="star">Follow</a>
 			<a href="#" data-role="button" data-icon="alert">차단</a>
 		</div>
+		-->
 	</div><!-- /content -->
 
 	<div data-role="footer" class="ui-bar" data-theme="d">
 		<div data-role="navbar">
 			<ul>
-				<li><a href="#" data-icon="arrow-l">이전 글</a></li>
-				<li><a href="#" data-icon="arrow-r">다음 글</a></li>
+				<li><a href="/{{board}}/{{prev.id}}" data-icon="arrow-l">이전 글<span>{{prev.title}}</span></a></li>
+				<li><a href="/{{board}}/{{next.id}}" data-icon="arrow-r">다음 글<span>{{next.title}}</span></a></li>
 			</ul>
 		</div><!-- /navbar -->
 	</div><!-- /footer -->
