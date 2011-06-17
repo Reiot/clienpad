@@ -28,7 +28,7 @@ import logging
 #
 # >>> from BeautifulSoup import BeautifulSoup
 # >>> import urllib
-# >>> soup = BeautifulSoup(urllib.urlopen(url).read())
+# >>> soup = BeautifulSoup(urllib.urlopen(url).read()
 
 def author_image(tag):
     if tag.img:
@@ -39,11 +39,11 @@ def author_image(tag):
         author = '<img src="ppan.gif" class="ppan default"/>'
     
 
-class MainHandler(webapp.RequestHandler):
+class BoardHandler(webapp.RequestHandler):
     """article list"""
-    def get(self):
+    def get(self, board='park'):
 
-        url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=park"
+        url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s"% board
         logging.info("fetching...%s"% url)
         result = urlfetch.fetch(url)
         logging.info("status: %d"% result.status_code)
@@ -89,7 +89,7 @@ class MainHandler(webapp.RequestHandler):
                 
             path = os.path.join(os.path.dirname(__file__), 'index.html')
             self.response.out.write(template.render(path, {
-                'board': 'park',
+                'board': board,
                 'posts': posts,
             }))
         else:
@@ -105,9 +105,24 @@ class PostHandler(webapp.RequestHandler):
         if result.status_code == 200:
             soup = BeautifulSoup(result.content)
             
-            title = soup.find('div', {'class':'view_title'})
+            title_div = soup.find('div', {'class':'view_title'})
+            title = title_div.div.h4.span.string
             logging.info('title:%s'% title)
-            content = soup.find('div', {'class':'view_content'})
+            
+            content_div = soup.find('div', {'class':'resContents'})
+            #content_div.find('div', {'class':'ccl'}).extract()
+            
+            # modify image
+            for img in content_div.findAll('img'):
+                if img['src'].startswith(".."):
+                    img['src'] = "http://clien.career.co.kr/cs2" + img['src'].replace("..","")
+                elif img['src'].startswith("/cs2"):
+                    img['src'] = "http://clien.career.co.kr" + img['src']
+            content = []
+            for c in content_div.contents:
+                content.append(unicode(c))
+
+            content = u''.join(content)
             logging.info('content:%s'% content)
             comments = []
             for comment in soup.findAll('div', {'class':'reply_head'}):
@@ -134,8 +149,9 @@ class PostHandler(webapp.RequestHandler):
 
 def main():
     application = webapp.WSGIApplication([
-        ('/', MainHandler),
-        (r'/(.*)/(.*)', PostHandler),
+        ('/', BoardHandler),
+        (r'/([^/]*)', BoardHandler),
+        (r'/([^/]*)/(\d*)', PostHandler),
         ], debug=True)
     util.run_wsgi_app(application)
 
