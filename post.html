@@ -16,7 +16,10 @@
 
 	<div data-role="content" data-theme="b">	
 		{{post.author}}		
-		{{post.content}}		
+		{{post.content}}	
+		{% if post.signature %}	
+			<em>{{post.signature}}</em>
+		{% endif %}
 	</div><!-- /content -->
 
 	<div data-role="footer" data-theme="b">

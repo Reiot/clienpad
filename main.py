@@ -110,7 +110,17 @@ class PostHandler(webapp.RequestHandler):
             logging.info('title:%s'% title)
             
             content_div = soup.find('div', {'class':'resContents'})
-            #content_div.find('div', {'class':'ccl'}).extract()
+            
+            signature_div = content_div.find('div', {'class':'signature'})
+            if signature_div:
+                signature = signature_div.dl.dd
+                signature_div.extract()
+            else:
+                signature = None
+                
+            ccl = content_div.find('div', {'class':'ccl'})
+            if ccl:
+                ccl.extract()
             
             # modify image
             for img in content_div.findAll('img'):
@@ -139,6 +149,7 @@ class PostHandler(webapp.RequestHandler):
             post = dict(
                 title = title,
                 content = content,
+                signature = signature,
                 comments = comments,
             )
 
