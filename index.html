@@ -42,9 +42,11 @@
 				{{post.author}}
 				<a href="/{{board}}/{{post.id}}">
 					{{post.title}}
-					<span class="ui-li-aside ui-li-desc">{{post.publish_time}}</span>					
+					<span class="ui-li-aside ui-li-desc">{{post.publish_time_short}}</span>					
 				</a>
-				<span class="ui-li-count">{{post.read}}</span>
+				{% if post.comments %}
+				<span class="ui-li-count">{{post.comments}}</span>
+				{% endif %}
 			</li>
 			{% endfor %}        	
         </ul>

@@ -11,9 +11,12 @@
 <div data-role="page">
 
 	<div data-role="header" data-position="fixed" data-theme="d">
-		<a href="#" data-rel="back" data-icon="arrow-l">Back</a>
+		<a href="#" data-rel="back" data-icon="back">Back</a>
 		<h1>{{post.title}}</h1>
-		<a href="#" data-icon="arrow-r">Next</a>
+		<!--
+		<a href="#" data-icon="arrow-l">이전</a>
+		<a href="#" data-icon="arrow-r">다음</a>
+		-->
 	</div><!-- /header -->
 
 	<div data-role="content" data-theme="d">	
@@ -32,13 +35,18 @@
 			{% endfor %}
 		</ul>
 		{% endif %}
+		
+		<div data-role="controlgroup" data-type="horizontal">
+			<a href="#" data-role="button" data-icon="star">Follow</a>
+			<a href="#" data-role="button" data-icon="alert">차단</a>
+		</div>
 	</div><!-- /content -->
 
 	<div data-role="footer" class="ui-bar" data-theme="d">
 		<div data-role="navbar">
 			<ul>
-				<li><a href="#" data-icon="plus">Follow</a></li>
-				<li><a href="#" data-icon="minus">Block</a></li>
+				<li><a href="#" data-icon="arrow-l">이전 글</a></li>
+				<li><a href="#" data-icon="arrow-r">다음 글</a></li>
 			</ul>
 		</div><!-- /navbar -->
 	</div><!-- /footer -->

@@ -74,14 +74,25 @@ class BoardHandler(webapp.RequestHandler):
                 #logging.info("#td=%d"% len(td)) #type(td))
                 id = td[0].string
                 #logging.info("id=%s"%id)
-                title = td[1].a.string
+
+                subject_tag = td[1]
+                
+                title = subject_tag.a.string
                 #logging.info("title=%s"%title)
+                
+                if subject_tag.span:
+                    comments = subject_tag.span.string
+                    comments = comments.replace("[","").replace("]","")
+                else:
+                    comments = 0
                 
                 author_tag = td[2]
                 author = author_image(author_tag)
                 #logging.info("author=%s"%author)
                 
-                publish_time = td[3].span['title']
+                publish_time_tag = td[3]
+                publish_time = publish_time_tag.span['title']
+                publish_time_short = publish_time_tag.span.string
                 #logging.info("publish_time: %s"%publish_time)
                 
                 read = int(td[4].string)
@@ -95,7 +106,9 @@ class BoardHandler(webapp.RequestHandler):
                     title = title,
                     author = author,
                     publish_time = publish_time,
+                    publish_time_short = publish_time_short,
                     read = read,
+                    comments = comments,
                 ))
                 
             path = os.path.join(os.path.dirname(__file__), 'index.html')
