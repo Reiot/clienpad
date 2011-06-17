@@ -14,12 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+# os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+# 
+# from google.appengine.dist import use_library
+# use_library('django', '1.2')
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import template
 
-import os
+
 from BeautifulSoup import BeautifulSoup
 import logging
 
@@ -57,31 +63,29 @@ class BoardHandler(webapp.RequestHandler):
             for tr in soup.find("div", {"class": "board_main"}).findAll("tr")[2:]:
                 td = tr.findAll("td")
                 if len(td)<4:
-                    logging.info("invalid format: %s"%td)
+                    logging.warn("invalid format: %s"%td)
                     continue
                     
                 #logging.info(td)
                 #logging.info("#td=%d"% len(td)) #type(td))
                 id = td[0].string
-                logging.info("id=%s"%id)
+                #logging.info("id=%s"%id)
                 title = td[1].a.string
-                logging.info("title=%s"%title)
+                #logging.info("title=%s"%title)
                 
                 author_tag = td[2]
-                if author_tag.img:
-                    image_src = author_tag.img['src']
-                    image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
-                    author = '<img src="%s" class="ppan"/>'% image_src
-                else:
-                    author = '<img src="ppan.gif" class="ppan default"/>'
-                logging.info("author=%s"%author)
+                author = author_image(author_tag)
+                #logging.info("author=%s"%author)
+                
                 publish_time = td[3].span['title']
-                logging.info("publish_time: %s"%publish_time)
+                #logging.info("publish_time: %s"%publish_time)
+                
                 read = int(td[4].string)
-                logging.info("read: %d"% read)
+                #logging.info("read: %d"% read)
                 # read = publish_time.nextSibling
                 # for td in tr.findAll("td"):
                 #     logging.info(td)
+                
                 posts.append(dict(
                     id = id,
                     title = title,
@@ -141,10 +145,10 @@ class PostHandler(webapp.RequestHandler):
             for comment in soup.findAll('div', {'class':'reply_head'}):
                 #logging.info('comment: %s'% comment.ul.li)
                 comment_author = author_image(comment.ul.li)
-                logging.info('author: %s'%comment_author)
+                #logging.info('author: %s'%comment_author)
                 comment_date = None
                 comment_content = comment.findNext('div')
-                logging.info('content: %s'%comment_content)
+                #logging.info('content: %s'%comment_content)
                 comments.append(dict(
                     author = comment_author,
                     content = comment_content,

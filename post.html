@@ -10,8 +10,10 @@
 
 <div data-role="page">
 
-	<div data-role="header"  data-theme="d">
+	<div data-role="header" data-position="fixed" data-theme="d">
+		<a href="#" data-rel="back" data-icon="arrow-l">Back</a>
 		<h1>{{post.title}}</h1>
+		<a href="#" data-icon="arrow-r">Next</a>
 	</div><!-- /header -->
 
 	<div data-role="content" data-theme="d">	
@@ -32,8 +34,13 @@
 		{% endif %}
 	</div><!-- /content -->
 
-	<div data-role="footer" data-theme="d">
-		<h4>Page Footer</h4>
+	<div data-role="footer" class="ui-bar" data-theme="d">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" data-icon="plus">Follow</a></li>
+				<li><a href="#" data-icon="minus">Block</a></li>
+			</ul>
+		</div><!-- /navbar -->
 	</div><!-- /footer -->
 </div>
 
