@@ -3,19 +3,16 @@
 	<head> 
 	<title>{{post.title}} - jClien</title> 
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+	<link rel="stylesheet" href="style.css" />
 	<script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script></head> 
 <body> 
 
 <div data-role="page" data-theme="d">
 
-	<div data-role="header" data-backbtn="false" data-position="fixed">
-		<a href="/{{board.id}}" data-icon="back">{{board.title}}</a>
+	<div data-role="header" data-backbtn="false">
+		<a href="/{{board.id}}" data-icon="back" data-direction="reverse">{{board.title}}</a>
 		<h1>{{post.title}}</h1>
-		<!--
-		<a href="#" data-icon="arrow-l">이전</a>
-		<a href="#" data-icon="arrow-r">다음</a>
-		-->
 	</div><!-- /header -->
 
 	<div data-role="content">	
@@ -43,13 +40,21 @@
 		-->
 	</div><!-- /content -->
 
-	<div data-role="footer" class="ui-bar" data-position="fixed">
+	<div data-role="footer" class="ui-bar">
 		<div data-role="navbar">
 			<ul>
 				{% if prev %}
-				<li><a href="/{{board.id}}/{{prev.id}}" data-icon="arrow-l">이전 글<span>{{prev.title}}</span></a></li>
+				<li>
+					<a href="/{{board.id}}/{{prev.id}}" data-icon="arrow-u" data-transition="slidedown">
+					{{prev.title}}
+					</a>
+				</li>
 				{% endif %}
-				<li><a href="/{{board.id}}/{{next.id}}" data-icon="arrow-r">다음 글<span>{{next.title}}</span></a></li>
+				<li>
+					<a href="/{{board.id}}/{{next.id}}" data-icon="arrow-d" data-transition="slideup">
+					{{next.title}}
+					</a>
+				</li>
 			</ul>
 		</div><!-- /navbar -->
 	</div><!-- /footer -->

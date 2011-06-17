@@ -21,6 +21,11 @@ handlers:
   mime_type: image/gif
   static_files: ppan.gif
   upload: ppan.gif
+
+- url: /style\.css
+  mime_type: text/css
+  static_files: style.css
+  upload: style.css
   
 - url: .*
   script: main.py

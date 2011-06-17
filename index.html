@@ -3,40 +3,13 @@
 	<head> 
 	<title>{{post.title}} - jClien</title> 
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+	<link rel="stylesheet" href="style.css" />	
 	<script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script></head> 
 <body>
-	
-<style type="text/css">
-	.ui-li-has-thumb .ui-btn-inner a.ui-link-inherit, .ui-li-static.ui-li-has-thumb {
-		min-height: 0;
-		padding-left: 85px;
-	}
-	img.ppan {
-		display: block;
-		margin: 11px 11px 11px 11px;
-	}
-	img.ppan.default {
-		display: none;
-		opacity: 0.7;
-	}
-	span.author {
-		display: block;
-		position: absolute;
-		left: 4px;
-		top: 11px;
-		width: 70px;
-		font-size: 10px;
-		text-align: center;
-		background-color: #ccc;
-		padding: 2px;
-		color: black;
-	}
-</style>
-
 <div data-role="page" data-theme="d">
     
-    <div data-role="header" data-position="fixed">
+    <div data-role="header">
         <h1>jClien</h1>
         <a href="#" id="refresh" data-role="button" data-icon="refresh" data-board="{{board}}">처음으로</a>
     </div><!-- /header -->
