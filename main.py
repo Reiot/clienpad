@@ -106,17 +106,161 @@ SMALL_BOARDS = [
         title = u'아이포니앙',
     ),
     dict(
+        id = 'cm_girl',
+        title = u'소녀시대',
+    ),
+    dict(
+        id = 'cm_dia',
+        title = u'디아블로',
+    ),
+    dict(
+        id = 'cm_nokien',
+        title = u'노키앙',
+    ),
+    dict(
+        id = 'cm_leather',
+        title = u'가죽당',
+    ),
+    dict(
+        id = 'cm_bb',
+        title = u'블렉베리',
+    ),
+    dict(
+        id = 'cm_wow',
+        title = u'WOW',
+    ),
+    dict(
+        id = 'cm_baby',
+        title = u'육아당',
+    ),
+    dict(
+        id = 'cm_book',
+        title = u'활자중독당',
+    ),
+    dict(
+        id = 'cm_daegu',
+        title = u'대구당',
+    ),
+    dict(
         id = 'cm_havehome',
         title = u'내집마련당',
     ),
-    # dict(
-    #     id = '',
-    #     title = u'',
-    # ),
+    dict(
+        id = 'cm_kara',
+        title = u'카라당',
+    ),
+    dict(
+        id = 'cm_oversea',
+        title = u'바다건너당',
+    ),
+    dict(
+        id = 'cm_sea',
+        title = u'Sea마당',
+    ),
+    dict(
+        id = 'cm_mabi',
+        title = u'Mabinogien',
+    ),
+    dict(
+        id = 'cm_music',
+        title = u'소리당',
+    ),
+    dict(
+        id = 'cm_star',
+        title = u'스타당',
+    ),
+    dict(
+        id = 'cm_coffee',
+        title = u'클다방',
+    ),
+    dict(
+        id = 'cm_lang',
+        title = u'어학당',
+    ),
+    dict(
+        id = 'cm_car',
+        title = u'굴러간당',
+    ),
+    dict(
+        id = 'cm_bike',
+        title = u'자전거당',
+    ),
+    dict(
+        id = 'cm_andro',
+        title = u'안드로메당',
+    ),
+    dict(
+        id = 'cm_tour',
+        title = u'여행을떠난당',
+    ),
+    dict(
+        id = 'cm_twit',
+        title = u'트윗당',
+    ),
+    dict(
+        id = 'cm_golf',
+        title = u'골프당',
+    ),
+    dict(
+        id = 'cm_bear',
+        title = u'곰돌이당',
+    ),
+    dict(
+        id = 'cm_swim',
+        title = u'퐁당퐁당',
+    ),
+    dict(
+        id = 'cm_app',
+        title = u'앱개발자당',
+    ),
+    dict(
+        id = 'cm_movie',
+        title = u'영화본당',
+    ),
+    dict(
+        id = 'cm_board',
+        title = u'보드게임당',
+    ),
+    dict(
+        id = 'cm_mount',
+        title = u'오른당',
+    ),
+    dict(
+        id = 'cm_snow',
+        title = u'미끄러진당',
+    ),
+    dict(
+        id = 'cm_photo',
+        title = u'찰칵찍당',
+    ),
+    dict(
+        id = 'cm_webos',
+        title = u'webOS당',
+    ),
+    dict(
+        id = 'cm_food',
+        title = u'맛있겠당',
+    ),
+    dict(
+        id = 'cm_stock',
+        title = u'고배당',
+    ),
+    dict(
+        id = 'cm_70',
+        title = u'X세대당',
+    ),
+    dict(
+        id = 'cm_fashion',
+        title = u'패셔니앙',
+    ),
+    dict(
+        id = 'cm_pic',
+        title = u'그림그린당',
+    ),
     
 ]
 BOARDS_MAP = dict([(b['id'], b) for b in BOARDS])
-BOARDS_MAP.update(dict([(b['id'], b) for b in SMALL_BOARDS]))
+BOARDS_MAP.update(dict([(b['id'], b) for b in SMALL_BOARDS if b['id']]))
 
 CONF = dict(
     app_name = APP_NAME,
