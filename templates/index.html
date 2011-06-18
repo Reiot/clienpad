@@ -1,0 +1,46 @@
+<!DOCTYPE html> 
+<html> 
+	<head> 
+	<title>{{board.title}} - jClien</title> 
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+	<link rel="stylesheet" href="/static/style.css" />	
+	<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+	<script src="/static/script.js"></script>
+	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script></head> 
+<body>
+<div data-role="page" data-theme="d">
+    
+    <div data-role="header">
+        <a href="#" class="refresh" data-role="button" data-icon="refresh" data-board="{{board.id}}">새로읽기</a>
+        <h1>jClien</h1>
+		<a href="/" data-icon="home" data-transition="fade">맨위로</a>
+    </div><!-- /header -->
+    
+    <div data-role="content">    
+        <ul class="posts" data-role="listview">
+			{% for post in posts %}
+			<li>
+				{{post.author}}
+				<a href="/{{board.id}}/{{post.id}}">
+					{{post.title}}
+					<span class="ui-li-aside ui-li-desc">{{post.publish_time_short}}</span>					
+				</a>
+				{% if post.comments %}
+				<span class="ui-li-count">{{post.comments}}</span>
+				{% endif %}
+			</li>
+			{% endfor %}        	
+        </ul>
+	    <div style="margin-top: 2em;">
+	        <a href="#" class="more" data-role="button" data-board="{{board.id}}" data-next-page="{{next_page}}">More</a>
+	    </div><!-- /header -->
+    </div><!-- /content -->
+    
+</div><!-- /page -->
+
+<script type="text/javascript">
+
+</script>
+
+</body>
+</html>

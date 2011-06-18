@@ -138,7 +138,7 @@ class BoardHandler(webapp.RequestHandler):
                 self.response.headers["Content-Type"] = "application/json"                
                 self.response.out.write(simplejson.dumps(res))                
             else:
-                path = os.path.join(os.path.dirname(__file__), 'index.html')
+                path = os.path.join(os.path.dirname(__file__), 'templates', 'index.html')
                 self.response.out.write(template.render(path, res))
          
 def get_post_info(td):
@@ -236,7 +236,7 @@ class PostHandler(webapp.RequestHandler):
                 comments = comments,
             )
 
-            path = os.path.join(os.path.dirname(__file__), 'post.html')
+            path = os.path.join(os.path.dirname(__file__), 'templates', 'post.html')
             self.response.out.write(template.render(path, {
                 'board': board,
                 'post': post,
