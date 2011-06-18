@@ -2,11 +2,12 @@
 <html> 
 	<head> 
 	<title>{{board.title}} - {{conf.app_name}}</title> 
-	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.css" />
 	<link rel="stylesheet" href="/static/style.css" />	
 	<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
 	<script src="/static/script.js"></script>
-	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script></head> 
+	<script src="http://code.jquery.com/mobile/latest/jquery.mobile.js"></script></head> 
+
 <body>
 <div data-role="page" data-theme="{{conf.theme}}">
     
@@ -21,7 +22,7 @@
 			{% for post in posts %}
 			<li>
 				{{post.author}}
-				<a href="/{{board.id}}/{{post.id}}">
+				<a class="post_title" href="/{{board.id}}/{{post.id}}">
 					{{post.title}}
 					<span class="ui-li-aside ui-li-desc">{{post.publish_time_short}}</span>					
 				</a>

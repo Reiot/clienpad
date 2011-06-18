@@ -41,6 +41,11 @@ import logging
 # >>> import urllib
 # >>> soup = BeautifulSoup(urllib.urlopen(url).read()
 APP_NAME = 'Clien for iPad'
+BOARD_CACHE_EXPIRE = 60
+POST_CACHE_EXPIRE = 60
+#ENABLE_MEMCACHE = True
+ENABLE_MEMCACHE = False
+
 BOARDS = [
     dict(
         id = 'park',
@@ -118,23 +123,20 @@ CONF = dict(
     theme = "b",
 )
 
-BOARD_CACHE_EXPIRE = 60
-POST_CACHE_EXPIRE = 60
-    
 def parse_author_image(tag):
     if tag.img:
         image_src = tag.img['src']
         image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
-        author = '<img src="%s" class="ppan"/>'% image_src
+        author = '<img src="%s" class="author ul-li-icon"/>'% image_src
     else:
-        author = '<img src="/static/ppan.gif" class="ppan default" title="%s" alt="%s"/><span class="author">%s</span>'% (
-            tag.span.string,
-            tag.span.string,
-            tag.span.string,
-        )
-        # author = '<span class="author ul-li-thumb">%s</span>'% (
+        # author = '<img src="/static/ppan.gif" class="ppan default" title="%s" alt="%s"/><span class="author">%s</span>'% (
+        #     tag.span.string,
+        #     tag.span.string,
         #     tag.span.string,
         # )
+        author = '<span class="author ul-li-icon">%s</span>'% (
+            tag.span.string,
+        )
     return author
          
 def parse_post_info(td):
@@ -183,9 +185,9 @@ class BoardHandler(webapp.RequestHandler):
         page = int(page)
         url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s"% board_id
         if page > 1:
-            url += "&page=%d"%page
-            
-        data = memcache.get(url)
+            url += "&page=%d"%page         
+         
+        data = memcache.get(url) if ENABLE_MEMCACHE else None
         if data:
             logging.info('cache hit')
         else:
@@ -273,7 +275,7 @@ class PostHandler(webapp.RequestHandler):
         board = BOARDS_MAP[board_id]
         url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s&wr_id=%s"%(board_id, post_id)
         
-        data = memcache.get(url)
+        data = memcache.get(url) if ENABLE_MEMCACHE else None
         if data:
             logging.info('cache hit')
         else:
