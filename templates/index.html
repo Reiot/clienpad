@@ -8,11 +8,12 @@
 	<script src="/static/script.js"></script>
 	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script></head> 
 <body>
+
 <div data-role="page" data-theme="{{conf.theme}}">
     
     <div data-role="header" data-backbtn="false">
         <h1>{{conf.app_name}}</h1>
-		<a href="#" data-icon="gear" class="ui-btn-right" data-transition="fade">설정</a>
+		<a href="#info" data-icon="info" class="ui-btn-right" data-transition="flip" data-rel="dialog">정보</a>
     </div><!-- /header -->
     
     <div data-role="content">    
@@ -33,9 +34,22 @@
 			</li>
 			{% endfor %}
         </ul>
-    </div><!-- /content -->
-    
+    </div><!-- /content -->    
+	
 </div><!-- /page -->
+
+<div id="info" data-role="page" data-theme="{{conf.theme}}">
+	<div data-role="header" data-backbtn="false">
+        <h1>About</h1>
+    </div><!-- /header -->
+    
+    <div data-role="content">
+	    <h1>Clien for iPad</h1>
+		<h2>by Reiot</h2>
+		<h3>reiot94@gmail.com</h3>
+		<a href="#" data-rel="back" data-role="button" data-transition="flip" data-direction="reverse">Close</a>
+    </div><!-- /content -->
+</div>
 
 </body>
 </html>
