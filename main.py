@@ -31,7 +31,7 @@ from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
 from django.utils import simplejson 
 
-from BeautifulSoup import BeautifulSoup
+from BeautifulSoup import BeautifulSoup, Comment
 import logging
 
 # TEST Script
@@ -159,6 +159,61 @@ def parse_post_info(tag):
         comments = comments,
     )
     
+def parse_comment(tag):
+    # div.reply_head + div.reply_content
+    
+    author = parse_author_image(tag.ul.li)
+    #logging.info('author: %s'%comment_author)
+    comment_date = None
+    content = tag.findNext('div')
+    #logging.info('content: %s'%comment_content)
+    return dict(
+        author = author,
+        content = content.contents[0],
+    )
+
+def parse_content(tag, remove_comment=True):
+
+    # modify image URL
+    for img in tag.findAll('img'):
+        if img['src'].startswith(".."):
+            img['src'] = "http://clien.career.co.kr/cs2" + img['src'].replace("..","")
+        elif img['src'].startswith("/cs2"):
+            img['src'] = "http://clien.career.co.kr" + img['src']
+        del img['onclick']
+        del img['style']
+        
+    # remove script & form & textarea
+    [t.extract() for t in tag.findAll(['script','form','textarea','input'])]
+        
+    # remove html comment
+    [comment.extract() for comment in tag.findAll(text=lambda text:isinstance(text, Comment))]
+
+    if remove_comment:
+        for c in tag.findAll('div', {'class':'reply_head'}):
+            c.extract()
+        for c in tag.findAll('div', {'class':'reply_content'}):
+            c.extract()
+        
+    ccl = tag.find('div', {'class':'ccl'})
+    if ccl:
+        ccl.extract()
+
+    # parse sig
+    signature_div = tag.find('div', {'class':'signature'})
+    if signature_div:
+        signature = signature_div.dl.dd
+        signature_div.extract()
+    else:
+        signature = None        
+
+    # merge as string
+    content = []
+    for c in tag.contents:
+        content.append(unicode(c))
+
+    return u''.join(content), signature
+    
 class MainHandler(webapp.RequestHandler):
     """article list"""
     def get(self):
@@ -213,8 +268,8 @@ class BoardHandler(webapp.RequestHandler):
 
         soup = BeautifulSoup(result.content)
         
+        posts = []
         if board['id']=="image":
-            posts = []
             trs = soup.find("div", {"class": "board_main"}).findAll("tr")
             for i in range(0, len(trs), 2):
                 post = self.parse_image_post(trs[i], trs[i+1])  
@@ -223,7 +278,6 @@ class BoardHandler(webapp.RequestHandler):
 
             logging.info('posts=%d'% len(posts))
         else:
-            posts = []
             # skip table header and notice
             for tr in soup.find("div", {"class": "board_main"}).findAll("tr")[2:]:
                 post = self.parse_post(tr)  
@@ -292,7 +346,7 @@ class BoardHandler(webapp.RequestHandler):
 
     def parse_image_post(self, tr1, tr2):
 
-        logging.info("parse_image_post")
+        #logging.info("parse_image_post")
         user_info = tr1.find("p", {"class":"user_info"})
         #logging.info(user_info)
         author = parse_author_image(user_info)        
@@ -306,37 +360,22 @@ class BoardHandler(webapp.RequestHandler):
         title = unicode(title_tag.div.h4.span.a.string)
         #logging.info('title=%s'% title)
 
-        content_div = tr2.find('div', {'class':'view_content'})
-        # modify image
-        for img in content_div.findAll('img'):
-            if img['src'].startswith(".."):
-                img['src'] = "http://clien.career.co.kr/cs2" + img['src'].replace("..","")
-            elif img['src'].startswith("/cs2"):
-                img['src'] = "http://clien.career.co.kr" + img['src']
-            del img['onclick']
-            del img['style']
-            
-        for scr in content_div.findAll('script'):
-            scr.extract()
-        content = []
-        for c in content_div.contents:
-            content.append(unicode(c))
-        content = u''.join(content)
+        # parse comment first because it will be removed in parse_content()
+        comments = []
+        for comment in tr2.findAll('div', {'class':'reply_head'}):
+            comments.append(parse_comment(comment))
 
-        # data = dict(
-        #     id = post_id,
-        #     title = title,
-        #     author = author,
-        # )
-        # 
-        # for k,v in data.items():
-        #     logging.info("%s: %s"%( k, type(v)))
+        content_div = tr2.find('div', {'class':'view_content'})
+        content = parse_content(content_div)
+            
+        #logging.info("comments: %d"% len(comments))
             
         return dict(
             id = post_id,
             title = title,
             author = author,
             content = content,
+            comments = comments,
         )
         
 class PostHandler(webapp.RequestHandler):
@@ -377,42 +416,11 @@ class PostHandler(webapp.RequestHandler):
         #logging.info('title:%s'% title)
 
         content_div = soup.find('div', {'class':'resContents'})
-
-        signature_div = content_div.find('div', {'class':'signature'})
-        if signature_div:
-            signature = signature_div.dl.dd
-            signature_div.extract()
-        else:
-            signature = None
-
-        ccl = content_div.find('div', {'class':'ccl'})
-        if ccl:
-            ccl.extract()
-
-        # modify image
-        for img in content_div.findAll('img'):
-            if img['src'].startswith(".."):
-                img['src'] = "http://clien.career.co.kr/cs2" + img['src'].replace("..","")
-            elif img['src'].startswith("/cs2"):
-                img['src'] = "http://clien.career.co.kr" + img['src']
-        content = []
-        for c in content_div.contents:
-            content.append(unicode(c))
-
-        content = u''.join(content)
-        #logging.info('content:%s'% content)
+        content, signature = parse_content(content_div)
+        
         comments = []
         for comment in soup.findAll('div', {'class':'reply_head'}):
-            #logging.info('comment: %s'% comment.ul.li)
-            comment_author = parse_author_image(comment.ul.li)
-            #logging.info('author: %s'%comment_author)
-            comment_date = None
-            comment_content = comment.findNext('div')
-            #logging.info('content: %s'%comment_content)
-            comments.append(dict(
-                author = comment_author,
-                content = comment_content,
-            ))
+            comments.append(parse_comment(comment))
 
         view_board = soup.find('table', {'class':'view_board'})
         #logging.info('view_board: %s'% view_board)

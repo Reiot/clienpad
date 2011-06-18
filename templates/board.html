@@ -27,9 +27,18 @@
 				<h2>{{post.title}}</h2>
 			</li>
 			<li>
+				<div><!-- to avoid ul-li-thumb feature -->
 				{{post.content}}
+				</div>
 				{% if post.comments %}
-				<span class="ui-li-count">{{post.comments}}</span>
+				<ul data-role="listview" data-inset="true">
+					{% for comment in post.comments %}
+					<li>
+						{{comment.author}}
+						{{comment.content}}
+					</li>
+					{% endfor %}
+				</ul>
 				{% endif %}
 			</li>
 			{% else %}
