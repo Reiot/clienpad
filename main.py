@@ -43,8 +43,8 @@ import logging
 APP_NAME = 'Clien for iPad'
 BOARD_CACHE_EXPIRE = 60
 POST_CACHE_EXPIRE = 60
-#ENABLE_MEMCACHE = True
-ENABLE_MEMCACHE = False
+ENABLE_MEMCACHE = True
+#ENABLE_MEMCACHE = False
 
 BOARDS = [
     dict(
@@ -267,6 +267,24 @@ CONF = dict(
     theme = "b",
 )
 
+def logging_list(l):
+    for v in l:
+        if isinstance(v, list):
+            logging_list(v)
+        elif isinstance(v, dict):
+            logging_dict(v)
+        else:
+            logging.info(type(v))
+
+def logging_dict(d):
+    for k, v in d.items():
+        if isinstance(v, list):
+            logging_list(v)
+        elif isinstance(v, dict):
+            logging_dict(v)
+        else:
+            logging.info("%s: %s"%( k, type(v)))
+
 def parse_author_image(tag):
     if tag.img:
         image_src = tag.img['src']
@@ -279,7 +297,7 @@ def parse_author_image(tag):
         #     tag.span.string,
         # )
         author = '<span class="author ul-li-icon">%s</span>'% (
-            tag.span.string,
+            unicode(tag.span.string),
         )
     return author
          
@@ -290,10 +308,10 @@ def parse_post_info(tag):
     post_id =  re.search('wr_id=(\d+)',href).group(1)
     #logging.info('id=%s'% post_id)
 
-    title = tag.a.string
+    title = unicode(tag.a.string)
     #logging.info('title=%s'% title)
 
-    comments = tag.span.string
+    comments = unicode(tag.span.string)
     comments = comments.replace('[','').replace(']','')
     #logging.info('comments=%s'% comments)
 
@@ -313,7 +331,7 @@ def parse_comment(tag):
     #logging.info('content: %s'%comment_content)
     return dict(
         author = author,
-        content = content.contents[0],
+        content = unicode(content.contents[0]),
     )
 
 def parse_content(tag, remove_comment=True):
@@ -346,7 +364,7 @@ def parse_content(tag, remove_comment=True):
     # parse sig
     signature_div = tag.find('div', {'class':'signature'})
     if signature_div:
-        signature = signature_div.dl.dd
+        signature = unicode(signature_div.dl.dd.string)
         signature_div.extract()
     else:
         signature = None        
@@ -534,6 +552,7 @@ class PostHandler(webapp.RequestHandler):
         else:
             data = self.parse(url, board)                
             if data:
+                #logging_dict(data)
                 memcache.add(url, data, POST_CACHE_EXPIRE)
                 
         if self.request.get('format')=='json':
@@ -556,7 +575,7 @@ class PostHandler(webapp.RequestHandler):
         soup = BeautifulSoup(result.content)
 
         title_div = soup.find('div', {'class':'view_title'})
-        title = title_div.div.h4.span.string
+        title = unicode(title_div.div.h4.span.string)
         #logging.info('title:%s'% title)
 
         content_div = soup.find('div', {'class':'resContents'})
