@@ -21,8 +21,8 @@ import re
 # with 1.2, HTML tags are escaped!
 # os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 # 
-#from google.appengine.dist import use_library
-#use_library('django', '1.2')
+from google.appengine.dist import use_library
+use_library('django', '1.2')
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
@@ -139,17 +139,17 @@ def parse_author_image(tag):
         )
     return author
          
-def parse_post_info(td):
+def parse_post_info(tag):
     #<td class="post_subject"><a href="./board.php?bo_table=park&amp;wr_id=6535728&amp;page=">저도 여친에게 알콩달콩 살고 싶다고 말한 적이...</a><span>[4]</span></td>
     
-    href = td.a['href']
+    href = tag.a['href']
     post_id =  re.search('wr_id=(\d+)',href).group(1)
     #logging.info('id=%s'% post_id)
 
-    title = td.a.string
+    title = tag.a.string
     #logging.info('title=%s'% title)
 
-    comments = td.span.string
+    comments = tag.span.string
     comments = comments.replace('[','').replace(']','')
     #logging.info('comments=%s'% comments)
 
@@ -178,7 +178,7 @@ class MainHandler(webapp.RequestHandler):
             
 class BoardHandler(webapp.RequestHandler):
     """article list"""
-    def get(self, board_id='park', page="1"):
+    def get(self, board_id, page="1"):
         
         board = BOARDS_MAP[board_id]
         
@@ -193,13 +193,14 @@ class BoardHandler(webapp.RequestHandler):
         else:
             data = self.parse(url, board, page)                
             if data:
+                #logging.info('data:%s'% data)
                 memcache.add(url, data, BOARD_CACHE_EXPIRE)
                 
         if self.request.get('format')=='json':
             self.response.headers["Content-Type"] = "application/json"                
             self.response.out.write(simplejson.dumps(data))                
         else:
-            data['conf'] = CONF
+            data['conf'] = CONF            
             path = os.path.join(os.path.dirname(__file__), 'templates', 'board.html')
             self.response.out.write(template.render(path, data))
             
@@ -211,14 +212,24 @@ class BoardHandler(webapp.RequestHandler):
             return none
 
         soup = BeautifulSoup(result.content)
-        posts = []
+        
+        if board['id']=="image":
+            posts = []
+            trs = soup.find("div", {"class": "board_main"}).findAll("tr")
+            for i in range(0, len(trs), 2):
+                post = self.parse_image_post(trs[i], trs[i+1])  
+                if post:      
+                    posts.append(post)
 
-        # skip table header and notice
-        for tr in soup.find("div", {"class": "board_main"}).findAll("tr")[2:]:
-            post = self.parse_post(tr)  
-            if post:      
-                posts.append(post)
-    
+            logging.info('posts=%d'% len(posts))
+        else:
+            posts = []
+            # skip table header and notice
+            for tr in soup.find("div", {"class": "board_main"}).findAll("tr")[2:]:
+                post = self.parse_post(tr)  
+                if post:      
+                    posts.append(post)
+
         return dict(
             board = board,
             next_page = page+1,
@@ -277,6 +288,55 @@ class BoardHandler(webapp.RequestHandler):
             publish_time_short = publish_time_short,
             read = read,
             comments = comments,
+        )
+
+    def parse_image_post(self, tr1, tr2):
+
+        logging.info("parse_image_post")
+        user_info = tr1.find("p", {"class":"user_info"})
+        #logging.info(user_info)
+        author = parse_author_image(user_info)        
+        #logging.info("author: %s"% author)
+        
+        title_tag = tr1.find('div', {'class':'view_title'})
+        href = title_tag.div.h4.span.a['href']
+        post_id =  re.search('wr_id=(\d+)',href).group(1)
+        #logging.info('id=%s'% post_id)
+
+        title = unicode(title_tag.div.h4.span.a.string)
+        #logging.info('title=%s'% title)
+
+        content_div = tr2.find('div', {'class':'view_content'})
+        # modify image
+        for img in content_div.findAll('img'):
+            if img['src'].startswith(".."):
+                img['src'] = "http://clien.career.co.kr/cs2" + img['src'].replace("..","")
+            elif img['src'].startswith("/cs2"):
+                img['src'] = "http://clien.career.co.kr" + img['src']
+            del img['onclick']
+            del img['style']
+            
+        for scr in content_div.findAll('script'):
+            scr.extract()
+        content = []
+        for c in content_div.contents:
+            content.append(unicode(c))
+        content = u''.join(content)
+
+        # data = dict(
+        #     id = post_id,
+        #     title = title,
+        #     author = author,
+        # )
+        # 
+        # for k,v in data.items():
+        #     logging.info("%s: %s"%( k, type(v)))
+            
+        return dict(
+            id = post_id,
+            title = title,
+            author = author,
+            content = content,
         )
         
 class PostHandler(webapp.RequestHandler):

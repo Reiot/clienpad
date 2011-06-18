@@ -1,3 +1,4 @@
+{% autoescape off %}
 <!DOCTYPE html> 
 <html> 
 	<head> 
@@ -10,7 +11,7 @@
 
 <body>
 <div data-role="page" data-theme="{{conf.theme}}">
-    
+	
     <div data-role="header" data-backbtn="false">
         <a href="#" class="refresh" data-role="button" data-icon="refresh" data-board="{{board.id}}">새로읽기</a>
         <h1>{{board.title}}</h1>
@@ -19,7 +20,19 @@
     
     <div data-role="content">    
         <ul class="posts" data-role="listview">
-			{% for post in posts %}
+		{% for post in posts %}
+			{% if board.id == "image" %}
+			<li data-role="list-divider">
+				{{post.author}}
+				<h2>{{post.title}}</h2>
+			</li>
+			<li>
+				{{post.content}}
+				{% if post.comments %}
+				<span class="ui-li-count">{{post.comments}}</span>
+				{% endif %}
+			</li>
+			{% else %}
 			<li>
 				{{post.author}}
 				<a class="post_title" href="/{{board.id}}/{{post.id}}">
@@ -30,6 +43,7 @@
 				<span class="ui-li-count">{{post.comments}}</span>
 				{% endif %}
 			</li>
+			{% endif %}
 			{% endfor %}        	
         </ul>
 	    <div style="margin-top: 2em;">
@@ -45,3 +59,4 @@
 
 </body>
 </html>
+{% endautoescape %}
