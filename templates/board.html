@@ -1,18 +1,18 @@
 <!DOCTYPE html> 
 <html> 
 	<head> 
-	<title>{{board.title}} - jClien</title> 
+	<title>{{board.title}} - {{conf.app_name}}</title> 
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
 	<link rel="stylesheet" href="/static/style.css" />	
 	<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
 	<script src="/static/script.js"></script>
 	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script></head> 
 <body>
-<div data-role="page" data-theme="d">
+<div data-role="page" data-theme="{{conf.theme}}">
     
-    <div data-role="header">
+    <div data-role="header" data-backbtn="false">
         <a href="#" class="refresh" data-role="button" data-icon="refresh" data-board="{{board.id}}">새로읽기</a>
-        <h1>jClien</h1>
+        <h1>{{board.title}}</h1>
 		<a href="/" data-icon="home" data-transition="fade">맨위로</a>
     </div><!-- /header -->
     

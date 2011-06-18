@@ -39,15 +39,85 @@ import logging
 # >>> from BeautifulSoup import BeautifulSoup
 # >>> import urllib
 # >>> soup = BeautifulSoup(urllib.urlopen(url).read()
-
-BOARDS = dict(
-    park = dict(
+APP_NAME = 'Clien for iPad'
+BOARDS = [
+    dict(
         id = 'park',
         title = u'모두의 공원',
-    )
+    ),
+    dict(
+        id = 'image',
+        title = u'사진게시판',
+    ),
+    dict(
+        id = 'kin',
+        title = u'아무거나 질문',
+    ),
+    dict(
+        id = 'news',
+        title = u'새로운 소식',
+    ),
+    dict(
+        id = 'lecture',
+        title = u'팁과 강좌',
+    ),
+    dict(
+        id = 'use',
+        title = u'사용기 게시판',
+    ),
+    dict(
+        id = 'useful',
+        title = u'유용한 사이트',
+    ),
+    dict(
+        id = 'jirum',
+        title = u'알뜰 구매',
+    ),
+    dict(
+        id = 'coupon',
+        title = u'쿠폰/이벤트',
+    ),
+    dict(
+        id = 'hongbo',
+        title = u'직접 홍보',
+    ),
+    dict(
+        id = 'pds',
+        title = u'자료실',
+    ),
+]
+SMALL_BOARDS = [
+    dict(
+        id = 'cm_main',
+        title = u'임시소모임',
+    ),
+    dict(
+        id = 'cm_mac',
+        title = u'MacLIEN',
+    ),
+    dict(
+        id = 'cm_iphonien',
+        title = u'아이포니앙',
+    ),
+    dict(
+        id = 'cm_havehome',
+        title = u'내집마련당',
+    ),
+    # dict(
+    #     id = '',
+    #     title = u'',
+    # ),
+    
+]
+BOARDS_MAP = dict([(b['id'], b) for b in BOARDS])
+BOARDS_MAP.update(dict([(b['id'], b) for b in SMALL_BOARDS]))
+
+CONF = dict(
+    app_name = APP_NAME,
+    theme = "b",
 )
     
-def author_image(tag):
+def parse_author_image(tag):
     if tag.img:
         image_src = tag.img['src']
         image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
@@ -62,12 +132,49 @@ def author_image(tag):
         #     tag.span.string,
         # )
     return author
+         
+def parse_post_info(td):
+    #<td class="post_subject"><a href="./board.php?bo_table=park&amp;wr_id=6535728&amp;page=">저도 여친에게 알콩달콩 살고 싶다고 말한 적이...</a><span>[4]</span></td>
+    
+    href = td.a['href']
+    post_id =  re.search('wr_id=(\d+)',href).group(1)
+    #logging.info('id=%s'% post_id)
 
+    title = td.a.string
+    #logging.info('title=%s'% title)
+
+    comments = td.span.string
+    comments = comments.replace('[','').replace(']','')
+    #logging.info('comments=%s'% comments)
+
+    return dict(
+        id = post_id,
+        title = title,
+        comments = comments,
+    )
+    
+class MainHandler(webapp.RequestHandler):
+    """article list"""
+    def get(self):
+        
+        data = BOARDS + SMALL_BOARDS
+        
+        if self.request.get('format')=='json':
+            self.response.headers["Content-Type"] = "application/json"                
+            self.response.out.write(simplejson.dumps(data))                
+        else:
+            path = os.path.join(os.path.dirname(__file__), 'templates', 'index.html')
+            self.response.out.write(template.render(path, dict(
+                conf = CONF,
+                boards = BOARDS,
+                small_boards = SMALL_BOARDS,
+            )))
+            
 class BoardHandler(webapp.RequestHandler):
     """article list"""
     def get(self, board_id='park', page="1"):
         
-        board = BOARDS[board_id]
+        board = BOARDS_MAP[board_id]
         
         page = int(page)
         url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s"% board_id
@@ -105,13 +212,16 @@ class BoardHandler(webapp.RequestHandler):
                     comments = 0
                 
                 author_tag = td[2]
-                author = author_image(author_tag)
+                author = parse_author_image(author_tag)
                 #logging.info("author=%s"%author)
                 
                 publish_time_tag = td[3]
-                publish_time = publish_time_tag.span['title']
-                publish_time_short = publish_time_tag.span.string
-                #logging.info("publish_time: %s"%publish_time)
+                if publish_time_tag.span:
+                    publish_time = publish_time_tag.span['title']
+                    publish_time_short = publish_time_tag.span.string
+                    #logging.info("publish_time: %s"%publish_time)
+                else:
+                    publish_time = publish_time_short = None
                 
                 read = int(td[4].string)
                 #logging.info("read: %d"% read)
@@ -129,43 +239,23 @@ class BoardHandler(webapp.RequestHandler):
                     comments = comments,
                 ))
             
-            res = dict(
+            data = dict(
                 board = board,
                 next_page = page+1,
                 posts = posts,
             )
             if self.request.get('format')=='json':
                 self.response.headers["Content-Type"] = "application/json"                
-                self.response.out.write(simplejson.dumps(res))                
+                self.response.out.write(simplejson.dumps(data))                
             else:
-                path = os.path.join(os.path.dirname(__file__), 'templates', 'index.html')
-                self.response.out.write(template.render(path, res))
-         
-def get_post_info(td):
-    #<td class="post_subject"><a href="./board.php?bo_table=park&amp;wr_id=6535728&amp;page=">저도 여친에게 알콩달콩 살고 싶다고 말한 적이...</a><span>[4]</span></td>
-    
-    href = td.a['href']
-    post_id =  re.search('wr_id=(\d+)',href).group(1)
-    #logging.info('id=%s'% post_id)
-
-    title = td.a.string
-    #logging.info('title=%s'% title)
-
-    comments = td.span.string
-    comments = comments.replace('[','').replace(']','')
-    #logging.info('comments=%s'% comments)
-
-    return dict(
-        id = post_id,
-        title = title,
-        comments = comments,
-    )
-
-                
+                data['conf'] = CONF
+                path = os.path.join(os.path.dirname(__file__), 'templates', 'board.html')
+                self.response.out.write(template.render(path, data))
+        
 class PostHandler(webapp.RequestHandler):
     """read article & comments"""
     def get(self, board_id, post_id):
-        board = BOARDS[board_id]
+        board = BOARDS_MAP[board_id]
         url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s&wr_id=%s"%(board_id, post_id)
         logging.info("fetching...%s"% url)
         result = urlfetch.fetch(url)
@@ -207,7 +297,7 @@ class PostHandler(webapp.RequestHandler):
             comments = []
             for comment in soup.findAll('div', {'class':'reply_head'}):
                 #logging.info('comment: %s'% comment.ul.li)
-                comment_author = author_image(comment.ul.li)
+                comment_author = parse_author_image(comment.ul.li)
                 #logging.info('author: %s'%comment_author)
                 comment_date = None
                 comment_content = comment.findNext('div')
@@ -222,10 +312,10 @@ class PostHandler(webapp.RequestHandler):
             td = view_board.findAll('td', {'class':'post_subject'})
             if len(td)==1: # lastest post
                 prev = None
-                next = get_post_info(td[0])
+                next = parse_post_info(td[0])
             else:
-                prev = get_post_info(td[0])
-                next = get_post_info(td[1])
+                prev = parse_post_info(td[0])
+                next = parse_post_info(td[1])
                 
             #logging.info("prev=%s next=%s"%( prev, next))
 
@@ -238,6 +328,7 @@ class PostHandler(webapp.RequestHandler):
 
             path = os.path.join(os.path.dirname(__file__), 'templates', 'post.html')
             self.response.out.write(template.render(path, {
+                'conf': CONF,
                 'board': board,
                 'post': post,
                 'prev': prev,
@@ -246,7 +337,7 @@ class PostHandler(webapp.RequestHandler):
 
 def main():
     application = webapp.WSGIApplication([
-        ('/', BoardHandler),
+        ('/', MainHandler),
         (r'/([^/]*)', BoardHandler),
         (r'/([^/]*)/page(\d+)', BoardHandler),
         (r'/([^/]*)/(\d*)', PostHandler),
