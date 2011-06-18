@@ -2,7 +2,7 @@
 <!DOCTYPE html> 
 <html> 
 	<head> 
-	<title>{{post.title}} - jClien</title> 
+	<title>{{title}} - jClien</title> 
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.css" />
 	<link rel="stylesheet" href="/static/style.css" />	
 	<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
@@ -15,19 +15,19 @@
 
 	<div data-role="header" data-backbtn="false">
 		<a href="/{{board.id}}" data-icon="back" data-direction="reverse">{{board.title}}</a>
-		<h1>{{post.title}}</h1>
+		<h1>{{title}}</h1>
 		<a href="/" data-icon="home" data-transition="fade">Home</a>
 	</div><!-- /header -->
 
 	<div data-role="content">	
-		{{post.author}}		
-		{{post.content}}	
-		{% if post.signature %}	
-			<em>{{post.signature}}</em>
+		{{author}}		
+		{{content}}	
+		{% if signature %}	
+		<div class="ul-li-aside">{{signature}}</em>
 		{% endif %}
-		{% if post.comments %}
+		{% if comments %}
 		<ul data-role="listview" data-inset="true">
-			{% for comment in post.comments %}
+			{% for comment in comments %}
 			<li>
 				{{comment.author}}
 				{{comment.content}}

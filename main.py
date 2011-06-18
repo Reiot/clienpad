@@ -306,7 +306,7 @@ class BoardHandler(webapp.RequestHandler):
         if subject_tag.a:
             title = subject_tag.a.string
         else:
-            # hidden by admin
+            # blocked by admin
             return None
         #logging.info("title=%s"%title)
     
@@ -366,7 +366,7 @@ class BoardHandler(webapp.RequestHandler):
             comments.append(parse_comment(comment))
 
         content_div = tr2.find('div', {'class':'view_content'})
-        content = parse_content(content_div)
+        content, unused = parse_content(content_div)
             
         #logging.info("comments: %d"% len(comments))
             
@@ -434,19 +434,15 @@ class PostHandler(webapp.RequestHandler):
 
         #logging.info("prev=%s next=%s"%( prev, next))
 
-        post = dict(
+        return dict(
+            board = board,
             title = title,
             content = content,
             signature = signature,
             comments = comments,
+            prev = prev,
+            next = next,
         )
-
-        return {
-            'board': board,
-            'post': post,
-            'prev': prev,
-            'next': next,
-        }
         
 def main():
     application = webapp.WSGIApplication([
