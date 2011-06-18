@@ -117,6 +117,8 @@ CONF = dict(
     app_name = APP_NAME,
     theme = "b",
 )
+
+BOARD_CACHE_EXPIRE = 60
     
 def parse_author_image(tag):
     if tag.img:
@@ -186,71 +188,9 @@ class BoardHandler(webapp.RequestHandler):
         if data:
             logging.info('cache hit')
         else:
-            logging.info("fetching...%s"% url)
-            result = urlfetch.fetch(url)
-            if result.status_code != 200:
-                logging.warn("urlfetch failed: %d"% result.status_code)            
-            else:
-                soup = BeautifulSoup(result.content)
-                posts = []
-                # skip table header and notice
-                for tr in soup.find("div", {"class": "board_main"}).findAll("tr")[2:]:
-                    td = tr.findAll("td")
-                    if len(td)<4:
-                        logging.warn("invalid format: %s"%td)
-                        continue
-                    
-                    #logging.info(td)
-                    #logging.info("#td=%d"% len(td)) #type(td))
-                    id = td[0].string
-                    #logging.info("id=%s"%id)
-
-                    subject_tag = td[1]
-                
-                    title = subject_tag.a.string
-                    #logging.info("title=%s"%title)
-                
-                    if subject_tag.span:
-                        comments = subject_tag.span.string
-                        comments = comments.replace("[","").replace("]","")
-                    else:
-                        comments = 0
-                
-                    author_tag = td[2]
-                    author = parse_author_image(author_tag)
-                    #logging.info("author=%s"%author)
-                
-                    publish_time_tag = td[3]
-                    if publish_time_tag.span:
-                        publish_time = publish_time_tag.span['title']
-                        publish_time_short = publish_time_tag.span.string
-                        #logging.info("publish_time: %s"%publish_time)
-                    else:
-                        publish_time = publish_time_short = None
-                
-                    read = int(td[4].string)
-                    #logging.info("read: %d"% read)
-                    # read = publish_time.nextSibling
-                    # for td in tr.findAll("td"):
-                    #     logging.info(td)
-                
-                    posts.append(dict(
-                        id = id,
-                        title = title,
-                        author = author,
-                        publish_time = publish_time,
-                        publish_time_short = publish_time_short,
-                        read = read,
-                        comments = comments,
-                    ))
-            
-                data = dict(
-                    board = board,
-                    next_page = page+1,
-                    posts = posts,
-                )
-                
-                memcache.add(url, data, 60)
+            data = self.parse(url, board, page)                
+            if data:
+                memcache.add(url, data, BOARD_CACHE_EXPIRE)
                 
         if self.request.get('format')=='json':
             self.response.headers["Content-Type"] = "application/json"                
@@ -259,6 +199,72 @@ class BoardHandler(webapp.RequestHandler):
             data['conf'] = CONF
             path = os.path.join(os.path.dirname(__file__), 'templates', 'board.html')
             self.response.out.write(template.render(path, data))
+            
+    def parse(self, url, board, page):
+        logging.info("fetching...%s"% url)
+        result = urlfetch.fetch(url)
+        if result.status_code != 200:
+            logging.warn("urlfetch failed: %d"% result.status_code)            
+            return none
+
+        soup = BeautifulSoup(result.content)
+        posts = []
+        # skip table header and notice
+        for tr in soup.find("div", {"class": "board_main"}).findAll("tr")[2:]:
+            td = tr.findAll("td")
+            if len(td)<4:
+                logging.warn("invalid format: %s"%td)
+                continue
+            
+            #logging.info(td)
+            #logging.info("#td=%d"% len(td)) #type(td))
+            id = td[0].string
+            #logging.info("id=%s"%id)
+
+            subject_tag = td[1]
+        
+            title = subject_tag.a.string
+            #logging.info("title=%s"%title)
+        
+            if subject_tag.span:
+                comments = subject_tag.span.string
+                comments = comments.replace("[","").replace("]","")
+            else:
+                comments = 0
+        
+            author_tag = td[2]
+            author = parse_author_image(author_tag)
+            #logging.info("author=%s"%author)
+        
+            publish_time_tag = td[3]
+            if publish_time_tag.span:
+                publish_time = publish_time_tag.span['title']
+                publish_time_short = publish_time_tag.span.string
+                #logging.info("publish_time: %s"%publish_time)
+            else:
+                publish_time = publish_time_short = None
+        
+            read = int(td[4].string)
+            #logging.info("read: %d"% read)
+            # read = publish_time.nextSibling
+            # for td in tr.findAll("td"):
+            #     logging.info(td)
+        
+            posts.append(dict(
+                id = id,
+                title = title,
+                author = author,
+                publish_time = publish_time,
+                publish_time_short = publish_time_short,
+                read = read,
+                comments = comments,
+            ))
+    
+        return dict(
+            board = board,
+            next_page = page+1,
+            posts = posts,
+        )
         
 class PostHandler(webapp.RequestHandler):
     """read article & comments"""
