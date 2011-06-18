@@ -364,7 +364,7 @@ def parse_content(tag, remove_comment=True):
     # parse sig
     signature_div = tag.find('div', {'class':'signature'})
     if signature_div:
-        signature = unicode(signature_div.dl.dd.string)
+        signature = u''.join([unicode(c) for c in signature_div.dl.dd.contents])
         signature_div.extract()
     else:
         signature = None        

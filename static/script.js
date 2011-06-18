@@ -50,7 +50,7 @@ function add_post(board, $posts, data){
 
 $(function(){
 	
-	$('a.refresh').live('click', function(){
+	$('a.refresh').live('click tab', function(){
 		var $button = $(this),
 			board = $button.data('board');
 			
@@ -71,7 +71,7 @@ $(function(){
 			});
 	});
 	
-	$('a.more').live('click', function(){
+	$('a.more').live('click tab', function(){
 		var $button = $(this),
 			board = $button.data('board'),
 			nextPage = $button.data('next-page');
