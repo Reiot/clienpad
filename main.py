@@ -119,6 +119,7 @@ CONF = dict(
 )
 
 BOARD_CACHE_EXPIRE = 60
+POST_CACHE_EXPIRE = 60
     
 def parse_author_image(tag):
     if tag.img:
@@ -271,84 +272,102 @@ class PostHandler(webapp.RequestHandler):
     def get(self, board_id, post_id):
         board = BOARDS_MAP[board_id]
         url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s&wr_id=%s"%(board_id, post_id)
+        
+        data = memcache.get(url)
+        if data:
+            logging.info('cache hit')
+        else:
+            data = self.parse(url, board)                
+            if data:
+                memcache.add(url, data, POST_CACHE_EXPIRE)
+                
+        if self.request.get('format')=='json':
+            self.response.headers["Content-Type"] = "application/json"                
+            self.response.out.write(simplejson.dumps(data))                
+        else:
+            data['conf'] = CONF
+            path = os.path.join(os.path.dirname(__file__), 'templates', 'post.html')
+            self.response.out.write(template.render(path, data))
+        
+        
+    def parse(self, url, board):
         logging.info("fetching...%s"% url)
         result = urlfetch.fetch(url)
         #logging.info("status: %d"% result.status_code)
         if result.status_code != 200:
             logging.warn("urlfetch failed: %d"% result.status_code)            
+            return {}
+
+        soup = BeautifulSoup(result.content)
+
+        title_div = soup.find('div', {'class':'view_title'})
+        title = title_div.div.h4.span.string
+        #logging.info('title:%s'% title)
+
+        content_div = soup.find('div', {'class':'resContents'})
+
+        signature_div = content_div.find('div', {'class':'signature'})
+        if signature_div:
+            signature = signature_div.dl.dd
+            signature_div.extract()
         else:
-            soup = BeautifulSoup(result.content)
-            
-            title_div = soup.find('div', {'class':'view_title'})
-            title = title_div.div.h4.span.string
-            #logging.info('title:%s'% title)
-            
-            content_div = soup.find('div', {'class':'resContents'})
-            
-            signature_div = content_div.find('div', {'class':'signature'})
-            if signature_div:
-                signature = signature_div.dl.dd
-                signature_div.extract()
-            else:
-                signature = None
-                
-            ccl = content_div.find('div', {'class':'ccl'})
-            if ccl:
-                ccl.extract()
-            
-            # modify image
-            for img in content_div.findAll('img'):
-                if img['src'].startswith(".."):
-                    img['src'] = "http://clien.career.co.kr/cs2" + img['src'].replace("..","")
-                elif img['src'].startswith("/cs2"):
-                    img['src'] = "http://clien.career.co.kr" + img['src']
-            content = []
-            for c in content_div.contents:
-                content.append(unicode(c))
+            signature = None
 
-            content = u''.join(content)
-            #logging.info('content:%s'% content)
-            comments = []
-            for comment in soup.findAll('div', {'class':'reply_head'}):
-                #logging.info('comment: %s'% comment.ul.li)
-                comment_author = parse_author_image(comment.ul.li)
-                #logging.info('author: %s'%comment_author)
-                comment_date = None
-                comment_content = comment.findNext('div')
-                #logging.info('content: %s'%comment_content)
-                comments.append(dict(
-                    author = comment_author,
-                    content = comment_content,
-                ))
-                
-            view_board = soup.find('table', {'class':'view_board'})
-            #logging.info('view_board: %s'% view_board)
-            td = view_board.findAll('td', {'class':'post_subject'})
-            if len(td)==1: # lastest post
-                prev = None
-                next = parse_post_info(td[0])
-            else:
-                prev = parse_post_info(td[0])
-                next = parse_post_info(td[1])
-                
-            #logging.info("prev=%s next=%s"%( prev, next))
+        ccl = content_div.find('div', {'class':'ccl'})
+        if ccl:
+            ccl.extract()
 
-            post = dict(
-                title = title,
-                content = content,
-                signature = signature,
-                comments = comments,
-            )
+        # modify image
+        for img in content_div.findAll('img'):
+            if img['src'].startswith(".."):
+                img['src'] = "http://clien.career.co.kr/cs2" + img['src'].replace("..","")
+            elif img['src'].startswith("/cs2"):
+                img['src'] = "http://clien.career.co.kr" + img['src']
+        content = []
+        for c in content_div.contents:
+            content.append(unicode(c))
 
-            path = os.path.join(os.path.dirname(__file__), 'templates', 'post.html')
-            self.response.out.write(template.render(path, {
-                'conf': CONF,
-                'board': board,
-                'post': post,
-                'prev': prev,
-                'next': next,
-            }))
+        content = u''.join(content)
+        #logging.info('content:%s'% content)
+        comments = []
+        for comment in soup.findAll('div', {'class':'reply_head'}):
+            #logging.info('comment: %s'% comment.ul.li)
+            comment_author = parse_author_image(comment.ul.li)
+            #logging.info('author: %s'%comment_author)
+            comment_date = None
+            comment_content = comment.findNext('div')
+            #logging.info('content: %s'%comment_content)
+            comments.append(dict(
+                author = comment_author,
+                content = comment_content,
+            ))
 
+        view_board = soup.find('table', {'class':'view_board'})
+        #logging.info('view_board: %s'% view_board)
+        td = view_board.findAll('td', {'class':'post_subject'})
+        if len(td)==1: # lastest post
+            prev = None
+            next = parse_post_info(td[0])
+        else:
+            prev = parse_post_info(td[0])
+            next = parse_post_info(td[1])
+
+        #logging.info("prev=%s next=%s"%( prev, next))
+
+        post = dict(
+            title = title,
+            content = content,
+            signature = signature,
+            comments = comments,
+        )
+
+        return {
+            'board': board,
+            'post': post,
+            'prev': prev,
+            'next': next,
+        }
+        
 def main():
     application = webapp.WSGIApplication([
         ('/', MainHandler),
