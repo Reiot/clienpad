@@ -40,13 +40,20 @@ import logging
 # >>> import urllib
 # >>> soup = BeautifulSoup(urllib.urlopen(url).read()
 
+BOARDS = dict(
+    park = dict(
+        id = 'park',
+        title = u'모두의 공원',
+    )
+)
+    
 def author_image(tag):
     if tag.img:
         image_src = tag.img['src']
         image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
         author = '<img src="%s" class="ppan"/>'% image_src
     else:
-        author = '<img src="ppan.gif" class="ppan default" title="%s" alt="%s"/><span class="author">%s</span>'% (
+        author = '<img src="/static/ppan.gif" class="ppan default" title="%s" alt="%s"/><span class="author">%s</span>'% (
             tag.span.string,
             tag.span.string,
             tag.span.string,
@@ -58,10 +65,12 @@ def author_image(tag):
 
 class BoardHandler(webapp.RequestHandler):
     """article list"""
-    def get(self, board='park', page="1"):
+    def get(self, board_id='park', page="1"):
+        
+        board = BOARDS[board_id]
         
         page = int(page)
-        url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s"% board
+        url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s"% board_id
         if page > 1:
             url += "&page=%d"%page
             
@@ -151,13 +160,7 @@ def get_post_info(td):
         title = title,
         comments = comments,
     )
-    
-BOARDS = dict(
-    park = dict(
-        id = 'park',
-        title = u'모두의 공원',
-    )
-)
+
                 
 class PostHandler(webapp.RequestHandler):
     """read article & comments"""
