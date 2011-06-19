@@ -267,71 +267,51 @@ CONF = dict(
     theme = "b",
 )
 
-def logging_list(l):
-    for v in l:
-        if isinstance(v, list):
-            logging_list(v)
-        elif isinstance(v, dict):
-            logging_dict(v)
-        else:
-            logging.info(type(v))
-
-def logging_dict(d):
-    for k, v in d.items():
-        if isinstance(v, list):
-            logging_list(v)
-        elif isinstance(v, dict):
-            logging_dict(v)
-        else:
-            logging.info("%s: %s"%( k, type(v)))
-
 def parse_author_image(tag):
     if tag.img:
         image_src = tag.img['src']
         image_src = "http://clien.career.co.kr/cs2" + image_src.replace("..","")
         author = '<img src="%s" class="author ul-li-icon"/>'% image_src
     else:
-        # author = '<img src="/static/ppan.gif" class="ppan default" title="%s" alt="%s"/><span class="author">%s</span>'% (
-        #     tag.span.string,
-        #     tag.span.string,
-        #     tag.span.string,
-        # )
         author = '<span class="author ul-li-icon">%s</span>'% (
             unicode(tag.span.string),
         )
     return author
-         
-def parse_post_info(tag):
-    #<td class="post_subject"><a href="./board.php?bo_table=park&amp;wr_id=6535728&amp;page=">저도 여친에게 알콩달콩 살고 싶다고 말한 적이...</a><span>[4]</span></td>
+
+def parse_post_id(anchor):
+    return re.search('wr_id=(\d+)', anchor['href']).group(1)
     
-    href = tag.a['href']
-    post_id =  re.search('wr_id=(\d+)',href).group(1)
-    #logging.info('id=%s'% post_id)
+def parse_post_info(tag):
+    post_id = parse_post_id(tag.a)
+    logging.debug('id=%s'% post_id)
 
     title = unicode(tag.a.string)
-    #logging.info('title=%s'% title)
+    logging.debug('title=%s'% title)
 
-    comments = unicode(tag.span.string)
-    comments = comments.replace('[','').replace(']','')
-    #logging.info('comments=%s'% comments)
+    comment_count = unicode(tag.span.string).replace('[','').replace(']','')
+    logging.debug('comments=%s'% comment_count)
 
     return dict(
         id = post_id,
         title = title,
-        comments = comments,
+        comment_count = comment_count,
     )
     
 def parse_comment(tag):
     # div.reply_head + div.reply_content
     
     author = parse_author_image(tag.ul.li)
-    #logging.info('author: %s'%comment_author)
+    logging.debug('author: %s'% author)
+    
     comment_date = None
-    content = tag.findNext('div')
-    #logging.info('content: %s'%comment_content)
+    
+    div_content = tag.findNext('div')
+    content = unicode(div_content.contents[0]).strip()
+    logging.info('content: %s'% content)
+    
     return dict(
         author = author,
-        content = unicode(content.contents[0]),
+        content = content,
     )
 
 def parse_content(tag, remove_comment=True):
@@ -346,16 +326,18 @@ def parse_content(tag, remove_comment=True):
         del img['style']
         
     # remove script & form & textarea
-    [t.extract() for t in tag.findAll(['script','form','textarea','input'])]
+    for exc in tag.findAll(['script', 'form', 'textarea', 'input']):
+        exc.extract()
         
     # remove html comment
-    [comment.extract() for comment in tag.findAll(text=lambda text:isinstance(text, Comment))]
+    for comment in tag.findAll(text=lambda text:isinstance(text, Comment)):
+        comment.extract()
 
     if remove_comment:
-        for c in tag.findAll('div', {'class':'reply_head'}):
-            c.extract()
-        for c in tag.findAll('div', {'class':'reply_content'}):
-            c.extract()
+        for div in tag.findAll('div', {'class':'reply_head'}):
+            div.extract()
+        for div in tag.findAll('div', {'class':'reply_content'}):
+            div.extract()
         
     ccl = tag.find('div', {'class':'ccl'})
     if ccl:
@@ -369,10 +351,8 @@ def parse_content(tag, remove_comment=True):
     else:
         signature = None        
 
-    # merge as string
-    content = []
-    for c in tag.contents:
-        content.append(unicode(c))
+    # unicodify!
+    content = [unicode(c) for c in tag.contents]
 
     return u''.join(content), signature
     
@@ -395,6 +375,7 @@ class MainHandler(webapp.RequestHandler):
             
 class BoardHandler(webapp.RequestHandler):
     """article list"""
+    
     def get(self, board_id, page="1"):
         
         board = BOARDS_MAP[board_id]
@@ -402,7 +383,7 @@ class BoardHandler(webapp.RequestHandler):
         page = int(page)
         url = "http://clien.career.co.kr/cs2/bbs/board.php?bo_table=%s"% board_id
         if page > 1:
-            url += "&page=%d"%page         
+            url += "&page=%d"% page         
          
         data = memcache.get(url) if ENABLE_MEMCACHE else None
         if data:
@@ -426,7 +407,7 @@ class BoardHandler(webapp.RequestHandler):
         result = urlfetch.fetch(url)
         if result.status_code != 200:
             logging.warn("urlfetch failed: %d"% result.status_code)            
-            return none
+            return {}
 
         soup = BeautifulSoup(result.content)
         
@@ -448,39 +429,39 @@ class BoardHandler(webapp.RequestHandler):
 
         return dict(
             board = board,
-            next_page = page+1,
+            next_page = page + 1,
             posts = posts,
         )
         
     def parse_post(self, tr):
+        # some boards have category td, others not. 
+        # that's why use td[-N] style.
         td = tr.findAll("td")
         if len(td)<4:
             logging.warn("invalid format: %s"%td)
             return None
         
-        #logging.info(td)
-        #logging.info("#td=%d"% len(td)) #type(td))
-        id = td[0].string
-        #logging.info("id=%s"%id)
+        post_id = td[0].string
+        logging.debug("post_id: %s"% post_id)
 
-        subject_tag = td[-4]
-    
+        subject_tag = td[-4]    
         if subject_tag.a:
             title = subject_tag.a.string
         else:
-            # blocked by admin
+            # blocked post has no title. skip.
             return None
-        #logging.info("title=%s"%title)
+        logging.debug("title=%s"%title)
     
+        # comment count
         if subject_tag.span:
-            comments = subject_tag.span.string
-            comments = comments.replace("[","").replace("]","")
+            comment_count = subject_tag.span.string
+            comment_count = comment_count.replace("[","").replace("]","")
         else:
-            comments = 0
+            comment_count = 0
     
         author_tag = td[-3]
         author = parse_author_image(author_tag)
-        #logging.info("author=%s"%author)
+        logging.debug("author=%s"%author)
     
         publish_time_tag = td[-2]
         if publish_time_tag.span:
@@ -490,47 +471,39 @@ class BoardHandler(webapp.RequestHandler):
         else:
             publish_time = publish_time_short = None
     
-        read = int(td[-1].string)
-        #logging.info("read: %d"% read)
-        # read = publish_time.nextSibling
-        # for td in tr.findAll("td"):
-        #     logging.info(td)
+        read_count = td[-1].string
+        logging.debug("read_count: %s"% read_count)
     
         return dict(
-            id = id,
+            id = post_id,
             title = title,
             author = author,
             publish_time = publish_time,
             publish_time_short = publish_time_short,
-            read = read,
-            comments = comments,
+            read_count = read_count,
+            comment_count = comment_count,
         )
 
     def parse_image_post(self, tr1, tr2):
 
-        #logging.info("parse_image_post")
-        user_info = tr1.find("p", {"class":"user_info"})
-        #logging.info(user_info)
-        author = parse_author_image(user_info)        
-        #logging.info("author: %s"% author)
-        
-        title_tag = tr1.find('div', {'class':'view_title'})
-        href = title_tag.div.h4.span.a['href']
-        post_id =  re.search('wr_id=(\d+)',href).group(1)
-        #logging.info('id=%s'% post_id)
+        p_user_info = tr1.find("p", {"class":"user_info"})
+        author = parse_author_image(p_user_info)        
+        logging.debug("author: %s"% author)
+            
+        div_view_title = tr1.find('div', {'class':'view_title'})
+        post_id = parse_post_id(div_view_title.div.h4.span.a)
+        logging.debug("post_id: %s"% post_id)
 
-        title = unicode(title_tag.div.h4.span.a.string)
-        #logging.info('title=%s'% title)
+        title = unicode(div_view_title.div.h4.span.a.string)
+        logging.debug('title: %s'% title)
 
         # parse comment first because it will be removed in parse_content()
-        comments = []
-        for comment in tr2.findAll('div', {'class':'reply_head'}):
-            comments.append(parse_comment(comment))
+        div_reply_head = tr2.findAll('div', {'class':'reply_head'})
+        comments = [parse_comment(comment) for comment in div_reply_head]
+        logging.debug('#comments: %s'% len(comments))
 
-        content_div = tr2.find('div', {'class':'view_content'})
-        content, unused = parse_content(content_div)
-            
-        #logging.info("comments: %d"% len(comments))
+        div_view_content = tr2.find('div', {'class':'view_content'})
+        content, unused = parse_content(div_view_content)            
             
         return dict(
             id = post_id,
@@ -567,35 +540,32 @@ class PostHandler(webapp.RequestHandler):
     def parse(self, url, board):
         logging.info("fetching...%s"% url)
         result = urlfetch.fetch(url)
-        #logging.info("status: %d"% result.status_code)
         if result.status_code != 200:
             logging.warn("urlfetch failed: %d"% result.status_code)            
             return {}
 
         soup = BeautifulSoup(result.content)
 
-        title_div = soup.find('div', {'class':'view_title'})
-        title = unicode(title_div.div.h4.span.string)
+        div_view_title = soup.find('div', {'class':'view_title'})
+        title = unicode(div_view_title.div.h4.span.string)
         #logging.info('title:%s'% title)
 
-        content_div = soup.find('div', {'class':'resContents'})
-        content, signature = parse_content(content_div)
+        div_rescontents = soup.find('div', {'class':'resContents'})
+        content, signature = parse_content(div_rescontents)
         
-        comments = []
-        for comment in soup.findAll('div', {'class':'reply_head'}):
-            comments.append(parse_comment(comment))
+        div_reply_head = soup.findAll('div', {'class':'reply_head'})
+        comments = [parse_comment(comment) for comment in div_reply_head]
 
-        view_board = soup.find('table', {'class':'view_board'})
-        #logging.info('view_board: %s'% view_board)
-        td = view_board.findAll('td', {'class':'post_subject'})
-        if len(td)==1: # lastest post
+        table_view_board = soup.find('table', {'class':'view_board'})
+        td_post_subject = table_view_board.findAll('td', {'class':'post_subject'})
+        if len(td_post_subject)==1: # lastest post
             prev = None
-            next = parse_post_info(td[0])
+            next = parse_post_info(td_post_subject[0])
         else:
-            prev = parse_post_info(td[0])
-            next = parse_post_info(td[1])
+            prev = parse_post_info(td_post_subject[0])
+            next = parse_post_info(td_post_subject[1])
 
-        #logging.info("prev=%s next=%s"%( prev, next))
+        logging.debug("prev=%s next=%s"%( prev, next))
 
         return dict(
             board = board,

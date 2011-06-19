@@ -22,16 +22,18 @@ function render_image_post(board, post){
 		'<div>' + post.content + '</div>';
 		
 	if(post.comments.length){
-		html += '<ul data-role="listview" data-inset="true">';
+		html += '<div><ul data-role="listview" data-inset="true">';
 		var i;
 		for(i = 0 ; i < post.comments.length ; i ++ ){
 		    var comment = post.comments[i];
 			html += '<li>' + comment.author + comment.content + '</li>';
 		}
-		html += '</ul>';
+		html += '</ul></div>';
 	}
 	html += '</li>';
 	return html;
+	//var $html = $(html).find('ul[data-role="listview"]').listview();
+	//return $html;
 }
 
 function add_post(board, $posts, data){
