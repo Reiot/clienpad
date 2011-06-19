@@ -3,11 +3,11 @@
 	<head> 
 	<title>{{conf.app_name}}</title> 
 	<meta name="robots" content="noindex, nofollow">
-	<link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.min.css" />
 	<link rel="stylesheet" href="/static/style.css" />	
 	<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
 	<script src="/static/script.js"></script>
-	<script src="http://code.jquery.com/mobile/latest/jquery.mobile.js"></script></head> 
+	<script src="http://code.jquery.com/mobile/latest/jquery.mobile.min.js"></script></head> 
 <body>
 
 <div data-role="page" data-theme="{{conf.theme}}">
@@ -44,19 +44,26 @@
         <h1>About</h1>
     </div><!-- /header -->
     
-    <div data-role="content">
-	    <h1>Clien for iPad</h1>
-		<p>version 0.1.1</p>
-		<h2>by Reiot</h2>
-			<dl>
-				<dt>Email</dt>
-				<dd><a href="mailto:reiot94@gmail.com">reiot94@gmail.com</a></dd>
-				<dt>Blog</dt>
-				<dd><a href="http://reiot.com">http://reiot.com</a></dd>
-				<dt>Source</dt>
-				<dd>on <a href="http://github.com/reiot/clienpad/">GitHub</a></dd>
-			</dl>
-		<p><em>Send my love to DARKMINI, my wife and the countess of cats.</em></p>
+    <div data-role="content">		
+		<div class="ui-grid-a">
+			<div class="ui-block-a">
+			    <h1>Clien for iPad</h1>
+				<p>version 0.1.2</p>
+				<h2>by Reiot</h2>
+				<dl>
+					<dt>Email</dt>
+					<dd><a href="mailto:reiot94@gmail.com">reiot94@gmail.com</a></dd>
+					<dt>Blog</dt>
+					<dd><a href="http://reiot.com">http://reiot.com</a></dd>
+					<dt>Source</dt>
+					<dd><a href="http://github.com/reiot/clienpad/">http://github.com/reiot/clienpad/</a></dd>
+				</dl>
+			</div>
+			<div class="ui-block-b">
+				<img src="/static/grey.png"/>
+				<p><em>"I miss you Grey, my best cat. Always..."</em></p>
+			</div>
+		</div>
 		<a href="#" data-rel="back" data-role="button" data-transition="flip" data-direction="reverse">Close</a>
     </div><!-- /content -->
 </div>
