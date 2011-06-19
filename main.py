@@ -307,7 +307,7 @@ def parse_comment(tag):
     
     div_content = tag.findNext('div')
     content = unicode(div_content.contents[0]).strip()
-    logging.info('content: %s'% content)
+    logging.debug('content: %s'% content)
     
     return dict(
         author = author,
@@ -387,11 +387,11 @@ class BoardHandler(webapp.RequestHandler):
          
         data = memcache.get(url) if ENABLE_MEMCACHE else None
         if data:
-            logging.info('cache hit')
+            logging.debug('cache hit')
         else:
             data = self.parse(url, board, page)                
             if data:
-                #logging.info('data:%s'% data)
+                logging.debug('data:%s'% data)
                 memcache.add(url, data, BOARD_CACHE_EXPIRE)
                 
         if self.request.get('format')=='json':
@@ -403,7 +403,7 @@ class BoardHandler(webapp.RequestHandler):
             self.response.out.write(template.render(path, data))
             
     def parse(self, url, board, page):
-        logging.info("fetching...%s"% url)
+        logging.debug("fetching...%s"% url)
         result = urlfetch.fetch(url)
         if result.status_code != 200:
             logging.warn("urlfetch failed: %d"% result.status_code)            
@@ -418,8 +418,6 @@ class BoardHandler(webapp.RequestHandler):
                 post = self.parse_image_post(trs[i], trs[i+1])  
                 if post:      
                     posts.append(post)
-
-            logging.info('posts=%d'% len(posts))
         else:
             # skip table header and notice
             for tr in soup.find("div", {"class": "board_main"}).findAll("tr")[2:]:
@@ -467,7 +465,7 @@ class BoardHandler(webapp.RequestHandler):
         if publish_time_tag.span:
             publish_time = publish_time_tag.span['title']
             publish_time_short = publish_time_tag.span.string
-            #logging.info("publish_time: %s"%publish_time)
+            logging.debug("publish_time: %s"%publish_time)
         else:
             publish_time = publish_time_short = None
     
@@ -521,7 +519,7 @@ class PostHandler(webapp.RequestHandler):
         
         data = memcache.get(url) if ENABLE_MEMCACHE else None
         if data:
-            logging.info('cache hit')
+            logging.debug('cache hit')
         else:
             data = self.parse(url, board)                
             if data:
@@ -538,7 +536,7 @@ class PostHandler(webapp.RequestHandler):
         
         
     def parse(self, url, board):
-        logging.info("fetching...%s"% url)
+        logging.debug("fetching...%s"% url)
         result = urlfetch.fetch(url)
         if result.status_code != 200:
             logging.warn("urlfetch failed: %d"% result.status_code)            
@@ -548,7 +546,7 @@ class PostHandler(webapp.RequestHandler):
 
         div_view_title = soup.find('div', {'class':'view_title'})
         title = unicode(div_view_title.div.h4.span.string)
-        #logging.info('title:%s'% title)
+        logging.debug('title:%s'% title)
 
         div_rescontents = soup.find('div', {'class':'resContents'})
         content, signature = parse_content(div_rescontents)
