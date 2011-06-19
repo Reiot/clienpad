@@ -4,4 +4,5 @@ by Reiot (reiot94@gmail.com)
 
 ## ChangeLog
 
- - 2011-06-18 : v0.1 say hello to my masterpiece :P
+ - v0.1.1 (2011-06-19) : minor fix
+ - v0.1   (2011-06-18) : say hello to my masterpiece :P

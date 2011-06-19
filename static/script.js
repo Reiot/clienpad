@@ -5,8 +5,8 @@ function render_post(board, post){
 	+ post.title 
 	+ '<span class="ui-li-aside ui-li-desc">' + post.publish_time_short + '</span>'
 	+ '</a>';
-	if(post.comments>0){
-		html += '<span class="ui-li-count">' + post.comments + '</span>';
+	if(post.comment_count>0){
+		html += '<span class="ui-li-count">' + post.comment_count + '</span>';
 	}					
 	html += '</li>';					
 	return html;

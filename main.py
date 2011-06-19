@@ -467,8 +467,8 @@ class BoardHandler(webapp.RequestHandler):
     
         publish_time_tag = td[-2]
         if publish_time_tag.span:
-            publish_time = publish_time_tag.span['title']
-            publish_time_short = publish_time_tag.span.string
+            publish_time = unicode(publish_time_tag.span['title'])
+            publish_time_short = unicode(publish_time_tag.span.string)
             logging.debug("publish_time: %s"%publish_time)
         else:
             publish_time = publish_time_short = None
@@ -494,7 +494,7 @@ class BoardHandler(webapp.RequestHandler):
 
         # date, view, vote
         p_post_info = tr1.find("p", {"class":"post_info"})
-        info = p_post_info.string
+        info = unicode(p_post_info.string)
         logging.debug("info: %s"% info)
             
         div_view_title = tr1.find('div', {'class':'view_title'})
