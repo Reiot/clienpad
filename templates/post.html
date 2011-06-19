@@ -13,7 +13,7 @@
 
 <div data-role="page" data-theme="{{conf.theme}}">
 
-	<div data-role="header" data-backbtn="false" data-position="fixed">
+	<div data-role="header" data-backbtn="false">
 		<a href="/{{board.id}}" data-icon="back" data-direction="reverse">{{board.title}}</a>
 		<h1>{{title}}</h1>
 		<a href="/" data-icon="home" data-transition="fade">Home</a>
@@ -38,7 +38,7 @@
 		
 	</div><!-- /content -->
 
-	<div data-role="footer" data-position="fixed">
+	<div data-role="footer">
 		<div data-role="navbar">
 			<ul>
 				{% if prev %}

@@ -12,7 +12,7 @@
 <body>
 <div data-role="page" data-theme="{{conf.theme}}">
 	
-    <div data-role="header" data-backbtn="false" data-position="fixed">
+    <div data-role="header" data-backbtn="false">
         <a href="#" class="refresh" data-role="button" data-icon="refresh" data-board="{{board.id}}">새로읽기</a>
         <h1>{{board.title}}</h1>
 		<a href="/" data-icon="home" data-transition="fade">맨위로</a>
@@ -31,14 +31,16 @@
 				{{post.content}}
 				</div>
 				{% if post.comments %}
-				<ul data-role="listview" data-inset="true">
-					{% for comment in post.comments %}
-					<li>
-						{{comment.author}}
-						{{comment.content}}
-					</li>
-					{% endfor %}
-				</ul>
+				<div>
+					<ul data-role="listview" data-inset="true">
+						{% for comment in post.comments %}
+						<li>
+							{{comment.author}}
+							{{comment.content}}
+						</li>
+						{% endfor %}
+					</ul>
+				</div>
 				{% endif %}
 			</li>
 			{% else %}
