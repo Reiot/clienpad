@@ -17,6 +17,7 @@ function render_image_post(board, post){
 	'<li data-role="list-divider">' +
 	    post.author +
 	    '<h2>' + post.title + '</h2>' +
+	    '<span class="ui-li-aside ui-li-desc">' + post.info + '</span>' +		
 	'</li>' +
 	'<li>' +
 		'<div>' + post.content + '</div>';
@@ -52,7 +53,7 @@ function add_post(board, $posts, data){
 
 $(function(){
 	
-	$('a.refresh').live('click tap', function(){
+	$('a.refresh').live('tap', function(){
 		var $button = $(this),
 			board = $button.data('board');
 			
@@ -73,16 +74,17 @@ $(function(){
 			});
 	});
 	
-	$('a.more').live('click tap', function(){
+	$('a.more').live('tap', function(e){
 		var $button = $(this),
 			board = $button.data('board'),
 			nextPage = $button.data('next-page');
 			
-		console.log('board', board, 'nextPage', nextPage);
+		console.log(e.type, 'board', board, 'nextPage', nextPage);		
 		
 		var $posts = $button.parents('div[data-role="page"]').find('ul.posts');		
 		$.mobile.pageLoading();
 		
+        $button.attr("disabled","disabled");
 		$.getJSON("/"+board+"/page"+nextPage, { format: "json" })
 			.success(function(response){
 				console.log('response',response);
@@ -99,6 +101,7 @@ $(function(){
 			.complete(function(){
 				$.mobile.pageLoading(true);
 				//$.mobile.silentScroll(100);	
+                $button.attr("disabled","");
 			});
 	});
 });

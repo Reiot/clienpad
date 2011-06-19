@@ -20,7 +20,10 @@
 	</div><!-- /header -->
 
 	<div data-role="content">	
-		{{author}}		
+		<div class="ui-grid-a">
+			<div class="ui-block-a">{{author}}</div>
+			<div class="ui-block-b post-info"><em>{{info}}</em></div>
+		</div>
 		{{content}}	
 		{% if signature %}	
 		<em>{{signature}}</em>
@@ -31,6 +34,7 @@
 			<li>
 				{{comment.author}}
 				{{comment.content}}
+				<span class="ui-li-aside ui-li-desc">{{comment.info}}</span>
 			</li>
 			{% endfor %}
 		</ul>

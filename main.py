@@ -303,7 +303,10 @@ def parse_comment(tag):
     author = parse_author_image(tag.ul.li)
     logging.debug('author: %s'% author)
     
-    comment_date = None
+    # datetime
+    info_li = tag.ul.findAll("li")[1]
+    #logging.info(info_li)
+    info = unicode(info_li.string).strip().replace("(","").replace(")","")
     
     div_content = tag.findNext('div')
     content = unicode(div_content.contents[0]).strip()
@@ -311,6 +314,7 @@ def parse_comment(tag):
     
     return dict(
         author = author,
+        info = info,
         content = content,
     )
 
@@ -487,6 +491,11 @@ class BoardHandler(webapp.RequestHandler):
         p_user_info = tr1.find("p", {"class":"user_info"})
         author = parse_author_image(p_user_info)        
         logging.debug("author: %s"% author)
+
+        # date, view, vote
+        p_post_info = tr1.find("p", {"class":"post_info"})
+        info = p_post_info.string
+        logging.debug("info: %s"% info)
             
         div_view_title = tr1.find('div', {'class':'view_title'})
         post_id = parse_post_id(div_view_title.div.h4.span.a)
@@ -507,6 +516,7 @@ class BoardHandler(webapp.RequestHandler):
             id = post_id,
             title = title,
             author = author,
+            info = info,
             content = content,
             comments = comments,
         )
@@ -544,6 +554,16 @@ class PostHandler(webapp.RequestHandler):
 
         soup = BeautifulSoup(result.content)
 
+        div_view_head = soup.find('div', {'class':'view_head'})
+        p_user_info = div_view_head.find("p", {"class":"user_info"})
+        author = parse_author_image(p_user_info)        
+        logging.debug("author: %s"% author)
+
+        # date, view, vote
+        p_post_info = div_view_head.find("p", {"class":"post_info"})
+        info = unicode(p_post_info.string)
+        logging.info("info: %s"% info)
+        
         div_view_title = soup.find('div', {'class':'view_title'})
         title = unicode(div_view_title.div.h4.span.string)
         logging.debug('title:%s'% title)
@@ -568,6 +588,8 @@ class PostHandler(webapp.RequestHandler):
         return dict(
             board = board,
             title = title,
+            author = author,
+            info = info,
             content = content,
             signature = signature,
             comments = comments,
