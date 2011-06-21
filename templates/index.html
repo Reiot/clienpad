@@ -1,15 +1,5 @@
-<!DOCTYPE html> 
-<html> 
-	<head> 
-	<title>{{conf.app_name}}</title> 
-	<meta name="robots" content="noindex, nofollow">
-	<link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.min.css" />
-	<link rel="stylesheet" href="/static/style.css" />	
-	<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
-	<script src="/static/script.js"></script>
-	<script src="http://code.jquery.com/mobile/latest/jquery.mobile.min.js"></script></head> 
-<body>
-
+{% extends "tmpl.html" %}
+{% block content %}
 <div data-role="page" data-theme="{{conf.theme}}">
     
     <div data-role="header" data-backbtn="false">
@@ -67,6 +57,4 @@
 		<a href="#" data-rel="back" data-role="button" data-transition="flip" data-direction="reverse">Close</a>
     </div><!-- /content -->
 </div>
-
-</body>
-</html>
+{% endblock %}

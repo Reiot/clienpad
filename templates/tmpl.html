@@ -1,0 +1,19 @@
+<!DOCTYPE html> 
+<html> 
+	<head> 
+{% block title %}
+	<title>{{conf.app_name}}</title> 
+{% endblock title %}
+	<meta name="robots" content="noindex, nofollow">
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />
+	<link rel="stylesheet" href="/static/style.css" />	
+	<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script>
+	<script src="/static/script.js"></script>
+<body>
+
+{% block content %}
+{% endblock content %}
+
+</body>
+</html>

@@ -1,15 +1,10 @@
-{% autoescape off %}
-<!DOCTYPE html> 
-<html> 
-	<head> 
+{% extends "tmpl.html" %}
+{% block title %}
 	<title>{{board.title}} - {{conf.app_name}}</title> 
-	<link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.min.css" />
-	<link rel="stylesheet" href="/static/style.css" />	
-	<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
-	<script src="/static/script.js"></script>
-	<script src="http://code.jquery.com/mobile/latest/jquery.mobile.min.js"></script></head> 
+{% endblock title %}
+{% block content %}
 
-<body>
+{% autoescape off %}
 <div data-role="page" data-theme="{{conf.theme}}">
 	
     <div data-role="header" data-backbtn="false">
@@ -64,8 +59,5 @@
     </div><!-- /content -->
     
 </div><!-- /page -->
-
-
-</body>
-</html>
 {% endautoescape %}
+{% endblock %}
