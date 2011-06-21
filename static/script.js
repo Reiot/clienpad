@@ -70,7 +70,7 @@ $(function(){
 				add_post(board, $posts, response.posts);
 			})
 			.complete(function(){
-				$.mobile.hidePageLoading();
+				$.mobile.hidePageLoadingMsg();
 			});
 	});
 	
@@ -99,7 +99,7 @@ $(function(){
 				}
 			})
 			.complete(function(){
-                $.mobile.hidePageLoading();
+                $.mobile.hidePageLoadingMsg();
 				//$.mobile.silentScroll(100);	
                 $button.attr("disabled","");
 			});
