@@ -62,7 +62,7 @@ $(function(){
 		var $posts = $button.parents('div[data-role="page"]').find('ul.posts');
 		$posts.empty();
 
-		$.mobile.pageLoading();
+		$.mobile.showPageLoadingMsg();
 
 		$.getJSON("/"+board, { format: "json" })
 			.success(function(response){
@@ -70,7 +70,7 @@ $(function(){
 				add_post(board, $posts, response.posts);
 			})
 			.complete(function(){
-				$.mobile.pageLoading(true);
+				$.mobile.hidePageLoading();
 			});
 	});
 	
@@ -82,7 +82,7 @@ $(function(){
 		console.log(e.type, 'board', board, 'nextPage', nextPage);		
 		
 		var $posts = $button.parents('div[data-role="page"]').find('ul.posts');		
-		$.mobile.pageLoading();
+		$.mobile.showPageLoadingMsg();
 		
         $button.attr("disabled","disabled");
 		$.getJSON("/"+board+"/page"+nextPage, { format: "json" })
@@ -99,7 +99,7 @@ $(function(){
 				}
 			})
 			.complete(function(){
-				$.mobile.pageLoading(true);
+                $.mobile.hidePageLoading();
 				//$.mobile.silentScroll(100);	
                 $button.attr("disabled","");
 			});

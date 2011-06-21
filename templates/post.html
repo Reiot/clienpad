@@ -40,13 +40,13 @@
 			<ul>
 				{% if prev %}
 				<li>
-					<a href="/{{board.id}}/{{prev.id}}" data-icon="arrow-u" data-transition="slidedown">
+					<a href="/{{board.id}}/{{prev.id}}" data-icon="arrow-u" data-transition="fade">
 					{{prev.title}}
 					</a>
 				</li>
 				{% endif %}
 				<li>
-					<a href="/{{board.id}}/{{next.id}}" data-icon="arrow-d" data-transition="slideup">
+					<a href="/{{board.id}}/{{next.id}}" data-icon="arrow-d" data-transition="fade">
 					{{next.title}}
 					</a>
 				</li>
