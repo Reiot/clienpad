@@ -9,7 +9,7 @@ function render_post(board, post){
 		html += '<span class="ui-li-count">' + post.comment_count + '</span>';
 	}					
 	html += '</li>';					
-	return html;
+	return $(html);
 }
 
 function render_image_post(board, post){
@@ -32,7 +32,7 @@ function render_image_post(board, post){
 		html += '</ul></div>';
 	}
 	html += '</li>';
-	return html;
+	return $(html);
 	//var $html = $(html).find('ul[data-role="listview"]').listview();
 	//return $html;
 }
@@ -40,13 +40,13 @@ function render_image_post(board, post){
 function add_post(board, $posts, data){
 	var i;
 	for( i = 0 ; i < data.length ; i ++ ){
-		var li;
+		var $li;
 		if(board==="image"){
-		    li = render_image_post(board, data[i]);
+		    $li = render_image_post(board, data[i]);
 		}else{
-            li = render_post(board, data[i]);
+            $li = render_post(board, data[i]);
 		}
-		$posts.append(li);
+		$li.appendTo($posts).find("ul").listview();
 	}
 	$posts.listview('refresh');	
 }
