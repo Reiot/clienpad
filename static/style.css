@@ -3,18 +3,38 @@
 .author.ul-li-icon {
     display: block;
     float: left;    
+}
+
+img.author.ul-li-icon {
+    min-width: 60px;
+    max-width: 60px;
+    margin-left: 10px;
+    margin-top: 8px;
+    margin-right: 10px;
+}
+
+span.author.ul-li-icon {
+    margin-top: 10px;
+    width: 80px;
     font-size: 0.7em;
-    padding: 0.5em;
-    min-width: 60px;    
     text-align: center;
 }
 
 .ui-li-has-thumb .ui-btn-inner a.ui-link-inherit, .ui-li-static.ui-li-has-thumb  { 
     min-height: 16px; 
-    padding-left: 100px; 
+    padding-left: 80px; 
 }
 
 .post-info {
     text-align: right;
     font-size: 0.9em;
+}
+
+@media all and (max-width:480px) { 
+    p.publish-time {
+        display:none;
+    }
+    div.attachedImage img {
+        max-width: 480px;
+    }
 }

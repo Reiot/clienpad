@@ -25,9 +25,9 @@
 		<ul data-role="listview" data-inset="true">
 			{% for comment in comments %}
 			<li>
+				<p class="publish-time ui-li-aside ul-li-desc">{{comment.info}}</p>
 				{{comment.author}}
-				{{comment.content}}
-				<span class="ui-li-aside ui-li-desc">{{comment.info}}</span>
+				<p>{{comment.content}}</p>
 			</li>
 			{% endfor %}
 		</ul>

@@ -43,8 +43,8 @@
 			<li>
 				{{post.author}}
 				<a class="post_title" href="/{{board.id}}/{{post.id}}">
-					{{post.title}}
-					<span class="ui-li-aside ui-li-desc">{{post.publish_time_short}}</span>					
+					<p>{{post.title}}</p>
+					<p class="publish-time ui-li-aside">{{post.publish_time_short}}</p>					
 				</a>
 				{% if post.comment_count %}
 				<span class="ui-li-count">{{post.comment_count}}</span>
